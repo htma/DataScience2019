@@ -1,0 +1,192 @@
+% Python Programming S1: Introduction
+% created on Aug 30, 2018 by mht
+
+\documentclass[14 pt]{beamer}
+\usetheme[
+	bullet=circle,		% Other option: square
+	bigpagenumber,		% circled page number on lower right
+	topline=true,			% colored bar at the top of the frame 
+	shadow=false,			% Shading for beamer blocks
+	]{Flip}
+
+\definecolor{UBCblue}{rgb}{0.04706, 0.13725, 0.26667} % UBC Blue (primary)
+\usecolortheme[named=UBCblue]{structure}
+\setbeamertemplate{frametitle}{\color{UBCblue}\bfseries\insertframetitle\par\vskip-6pt\hrulefill}
+
+%\usecolortheme[named=Mahogany]{structure} % Sample dvipsnames color
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+
+\graphicspath{{images/}}	% Put all images in this directory. Avoids clutter.
+
+
+\usetikzlibrary{backgrounds}
+\usetikzlibrary{mindmap,trees}	% For mind map
+
+% increase space between items
+\let\olditem\item
+\renewcommand{\item}{\olditem\vspace{4pt}}
+
+\newcommand{\comment}[1]{\textcolor{comment}{\footnotesize{#1}\normalsize}} % comment mild
+\newcommand{\Comment}[1]{\textcolor{Comment}{\footnotesize{#1}\normalsize}} % comment bold
+\newcommand{\COMMENT}[1]{\textcolor{COMMENT}{\footnotesize{#1}\normalsize}} % comment crazy bold
+\newcommand{\Alert}[1]{\textcolor{Alert}{#1}} % louder alert
+\newcommand{\ALERT}[1]{\textcolor{ALERT}{#1}} % loudest alert
+
+\tikzstyle{every picture}+=[remember picture]
+
+\author[mht]{CS}
+\title[Deep Learning with PyTorch]{Deep Learning with PyTorch}
+\institute{Northeastern University at Qinhuangdao}
+
+\begin{document}
+\begin{frame}[c]
+\begin{center}
+	\textcolor{normal text.fg!50!Comment}{\textbf{\Large{Deep Learning with PyTorch}}}
+	\vspace{4em}
+
+    \COMMENT{\large{Lecture 0: Overview}} \\
+\vspace{4em}
+    \Comment{{Ma Haitao}} \\
+\comment{\textit{Northeastern University at Qinhuangdao}}\\
+\end{center}
+\end{frame}
+
+\begin{frame}{Syllabus}
+  \begin{itemize}[<+->]
+  \item Module 1 - Introduction to Pytorch
+  \item Module 2 - Linear Regression
+  \item Module 3 - Classification 
+  \item Module 4 - Neural Networks
+  \item Module 5 - Deep Networks
+  \item Module 6 - Computer Vision Networks
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Outline}
+  \begin{itemize}
+\item What's PyTorch
+\item PyTorch compared to Other Deep Learning Frameworks
+  \begin{itemize}
+  \item TensorFlow
+  \item Keras
+  \end{itemize}
+\item Who's this course for
+\end{itemize}
+\end{frame}
+
+\begin{frame}{WHAT IS PYTORCH?}
+
+\begin{itemize}
+\item A replacement for NumPy to use the power of GPUs
+\item A deep learning research platform  
+\end{itemize}
+\end{frame}
+\begin{frame}
+
+\begin{center}
+\Large{PyTorch compared to Other \\
+Deep learning Frameworks}
+\end{center}
+\end{frame}
+
+\begin{frame}{Imperative Programming}
+  \begin{itemize}
+  \item Imperative programming defines computation as you type it
+  \item Feels more like Python
+  \end{itemize}
+  \begin{block}{}
+import torch \\
+a = torch.tensor(1.0) \\
+b = torch.tensor(1.0)\\
+c = a + b \\
+print('c: ', c)
+    \end{block}
+c: tensor(2.)
+\end{frame}
+
+\begin{frame}
+  \frametitle{Symbolic Programming}
+  \begin{block}{}
+    import tensorflow as tf\\
+    a = tf.constant(1.0, name='a')\\
+    b = tf.constant(1.0, name='b')\\
+    c = a + b\\
+    print(c)
+  \end{block}  
+Tensor(``add:0'', shape=(), dtype=float32)
+\begin{block}{}
+  sess = tf.Session()\\
+ouput = sess.run(c)\\
+print('Value of c after running graph:'', output)
+\end{block}
+2.0
+\end{frame}
+
+\begin{frame}
+\begin{picture}(0,0)(0,0)
+    \put(0, -130)
+     { \includegraphics[width=\textwidth]{tf-pytorch.pdf}}
+   \end{picture}
+ \end{frame}
+
+\begin{frame}
+\begin{picture}(0,0)(0,0)
+    \put(0, -130)
+     { \includegraphics[width=\textwidth]{keras-pytorch.pdf}}
+   \end{picture}
+ \end{frame}
+
+
+\begin{frame}
+  \frametitle{Imperative Programming}
+  \begin{itemize}
+  \item Each and every level of computation can be accessed
+  \item Regular Python tools are easier to use in PyTorch
+  \item Can integrate many standard Programming operations like control
+    flow statements
+  \item As a result you can quickly gain insight in your mode!
+  \end{itemize}
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Who should take this course}
+  Anyone can build new better neural networks
+
+You should have: 
+  \begin{enumerate}
+\setbeamertemplate{enumerate items}[circle]
+
+\item Basic knowledge of Calculus and Linear Algegra
+\item knowledge of Machine Learning
+\item Knowledge of Neural Networks
+\item Basic Knowledge of Deep Learning
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Roadmap}
+  \begin{enumerate}
+\setbeamertemplate{enumerate items}[circle]
+  \item \Alert{W1: Python, Variables, and Functions}
+  \item W2: Strings and Designing Functions
+  \item W3: Booleans, Import and if Statements
+  \item W4: for Loops and Fancy String Manipulation
+  \end{enumerate}
+  \begin{block}{Lecture 1: Introduction to Python}
+      \begin{itemize}
+  \item What a Program is
+  \item  Installing Python
+  \item Types, Values
+  \end{itemize}
+  \end{block}
+\end{frame}
+
+\end{document}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

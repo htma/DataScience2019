@@ -1,0 +1,332 @@
+% Python Programming S1: Introduction
+% created on Aug 30, 2018 by mht
+
+\documentclass[14 pt]{beamer}
+\usetheme[
+	bullet=circle,		% Other option: square
+	bigpagenumber,		% circled page number on lower right
+	topline=true,			% colored bar at the top of the frame 
+	shadow=false,			% Shading for beamer blocks
+	]{Flip}
+
+\definecolor{UBCblue}{rgb}{0.04706, 0.13725, 0.26667} % UBC Blue (primary)
+\usecolortheme[named=UBCblue]{structure}
+\setbeamertemplate{frametitle}{\color{UBCblue}\bfseries\insertframetitle\par\vskip-6pt\hrulefill}
+
+%\usecolortheme[named=Mahogany]{structure} % Sample dvipsnames color
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+
+\graphicspath{{images/}}	% Put all images in this directory. Avoids clutter.
+
+\usetikzlibrary{backgrounds}
+\usetikzlibrary{mindmap,trees}	% For mind map
+
+% increase space between items
+\let\olditem\item
+\renewcommand{\item}{\olditem\vspace{4pt}}
+
+\newcommand{\comment}[1]{\textcolor{comment}{\footnotesize{#1}\normalsize}} % comment mild
+\newcommand{\Comment}[1]{\textcolor{Comment}{\footnotesize{#1}\normalsize}} % comment bold
+\newcommand{\COMMENT}[1]{\textcolor{COMMENT}{\footnotesize{#1}\normalsize}} % comment crazy bold
+\newcommand{\Alert}[1]{\textcolor{Alert}{#1}} % louder alert
+\newcommand{\ALERT}[1]{\textcolor{ALERT}{#1}} % loudest alert
+
+\tikzstyle{every picture}+=[remember picture]
+
+\author[mht]{CS}
+\title[Deep Learning with PyTorch]{Deep Learning with PyTorch}
+\institute{Northeastern University at Qinhuangdao}
+
+\begin{document}
+\begin{frame}[c]
+\begin{center}
+	\textcolor{normal text.fg!50!Comment}{\textbf{\Large{Deep Learning with PyTorch}}}
+	\vspace{4em}
+
+    \COMMENT{\large{Lecture 1: Overview of Tensors}} \\
+\vspace{4em}
+    \Comment{{Ma Haitao}} \\
+\comment{\textit{Northeastern University at Qinhuangdao}}\\
+\end{center}
+\end{frame}
+
+\begin{frame}{Outline}
+  \begin{itemize}
+  \item Tensors 1-Dimensions and 2-Dimensions
+  \item Derivatives
+  \item Datasets 
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Neural Network and Tensors}
+
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\Large{Tensors 1D} 
+\end{center}
+\end{frame}
+
+\begin{frame}{Objectives}
+\begin{itemize}
+  \item The Basics
+  \item Data types
+  \item Indexing and Slicing
+  \item Basic Operations
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \Large{The Basics}
+\end{frame}
+
+\begin{frame}
+  \begin{itemize}
+  \item 0-D: 1, 2, 0.2 10
+  \item 1-D: tensor is simple an array of numbers
+    \begin{enumerate}
+    \item A row in a data database
+    \item A vector
+    \item Time series
+    \end{enumerate}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Data Types}
+\begin{table}
+\footnotesize{ 
+  \begin{tabular}{lll}
+\hline
+    Data type & dtype & Tensor types \\
+\hline
+    32-bit floating point & torch.float32 or torch.float &
+                                                           torch.FloatTensor
+    \\
+    64-bit floating point & torch.float64 or torch.double &
+                                                           torch.DoubleTensor
+    \\
+  16-bit floating point & torch.float16 or torch.half &
+                                                           torch.HalfTensor
+    \\
+  
+    8-bit integer (unsigned) & torch.uint8  &
+                                                           torch.ByteTensor
+    \\
+    8-bit integer (signed) & torch.int8 &
+                                                           torch.CharTensor
+    \\
+    16-bit integer (signed) & torch.int16 or torch.short &
+                                                           torch.ShortTensor
+    \\
+    32-bit integer (signed) & torch.int32 or torch.int &
+                                                           torch.IntTensor
+    \\
+    64-bit integer (signed) & torch.int64 or torch.long & 
+                                                           torch.LongTensor
+    \\
+\hline  
+  \end{tabular}
+}
+\end{table}
+\end{frame}
+
+\begin{frame}
+\begin{block}{}
+import torch \\
+$a$ = torch.tensor([0, 1, 2, 3, 4])\\
+$a$.dtype : torch.int64 \\
+$a$.type() : torch.LongTensor
+\end{block}
+\begin{block}{}
+$a$ = torch.tensor([0.0, 1.0, 2.0, 3.0, 4.0])\\
+$a$.dtype :  torch.float32 \\
+$a$.type() : torch.FloatTensor
+\end{block}
+\begin{block}{}
+$a$ = torch.FloatTensor([0, 1, 2, 3, 4])\\
+$a$.type() : torch.FloatTensor \\
+$a$ :  tensor([0.,1.,2.,3.,4.])
+\end{block}
+\end{frame}
+
+\begin{frame}
+\begin{block}{}
+$a$ = torch.tensor([0, 1, 2, 3, 4])\\
+$a$.size() : torch.Size(5) \\
+$a$.ndimension() : 1
+\end{block}
+\end{frame}
+
+\begin{frame}
+\begin{block}{}
+$a$ = torch.tensor([0, 1, 2, 3, 4])\\
+$a\_col$ = $a$.view(5, 1) \\
+$a\_col$ = $a$.view(-1, 1) 
+\end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Tensor and Numpy }
+\begin{block}{}
+$np\_array$ = np.array([0.0, 1.0, 2.0, 3.0, 4.0])\\
+$torch\_tensor$ = torch.from\_numpy($np\_array$) \\
+$back\_to\_np$ = torch\_tensor.numpy()
+\end{block}
+
+\begin{block}{}
+$this\_tensor$  = torch.tensor([0, 1, 2, 3]) \\
+$torch\_to\_list$ = $this\_tensor$.tolist() \\
+$torch\_to\_list$ : [0, 1, 2, 3]
+\end{block}
+
+
+\begin{block}{}
+$this\_tensor$  = torch.tensor([2, 3, 4, 5]) \\
+$this\_tensor$[0] : tensor(2) \\
+$this\_tensor$[1] : tensor(3) \\
+$this\_tensor$[0].item() : 2 \\
+$this\_tensor$[1].item() : 3 
+\end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Indexing and Slicing}
+\begin{block}{}
+$c$  = torch.tensor([2, 3, 4, 5]) \\
+$d$ = c[1:4] \\
+$d$ : tensor([3,4,5])
+\end{block}
+\begin{block}{}
+$c$  = torch.tensor([2, 3, 4, 5]) \\
+$c$[1:4] = torch.tensor([6 ,7 , 8]) \\
+$c$ : tensor([2, 6, 7, 8])
+\end{block}
+\end{frame}
+
+\begin{frame}
+\Large{Basic Operations}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Vector Addition and Subtraction}
+  \begin{block}{}
+    $u$ = torch.tensor([1.0, 0.0]) \\
+    $v$ = torch.tensor([0.0, 1.0]) \\
+    $z$ = $u$ + $v$ \\
+    $z$ : tensor([1., 1.])
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Tensor Multiplication with a Scalar}
+  \begin{block}{}
+    $y$ = torch.tensor([1, 2]) \\
+    $z$ = 2 * $y$ \\
+    $z$ : tensor([2, 4])
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Product of two Tensors}
+  \begin{block}{}
+    $u$ = torch.tensor([1, 2]) \\
+    $v$ = torch.tensor([3, 2])\\
+    $z$ = $u$ * $v$ \\
+    $z$ : tensor([3, 4])
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Dot Product of two Tensors}
+  \begin{block}{}
+    $u$ = torch.tensor([1, 2]) \\
+    $v$ = torch.tensor([3, 1])\\
+    $z$ = torch.dot($u$, $v$) \\
+    $z$ : tensor(5)
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Adding Constant to a Tensor}
+  \begin{block}{}
+    $u$ = torch.tensor([1, 2, 3, -1]) \\
+    $z$ = $u$  + 1 \\
+    $z$ : tensor([2, 3, 4, 0])
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Functions}
+  \begin{block}{}
+    $a$ = torch.tensor([1.0, -1, 1, -1]) \\
+    $mean\_a$ = $a$.mean() \\
+    $mean\_a$ : tensor(0.0)
+  \end{block}
+
+  \begin{block}{}
+    $b$ = torch.tensor([1, -2, 3, 4, 5]) \\
+    $max\_b$ = $b$.max() \\
+    $max\_b$ : tensor(5)
+  \end{block}
+
+  \begin{block}{np.pi}
+    $x$ = torch.tensor([0, np.pi/2, np.pi]) \\
+    $y$ = torch.sin(x) \\
+    $y$ : tensor([0.0, 1.0, -0.0])
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \begin{block}{}
+    $x$ = torch.linespace(-2, 2, steps=5) \\
+    $x$ : tensor([-2., -1., 0., 1., 2.]) \\
+  \end{block}
+\end{frame}
+\begin{frame}
+  \frametitle{Plotting Mathematical Functions}
+  \begin{block}{}
+    import matplotlib.pyplot as plt \\
+
+    $x$ = torch.linspace(0, 2*np.pi, 100) \\
+    $y$ = torch.sin($x$) \\
+    plt.plot(x.numpy(), y.numpy()) \\
+    plt.show()
+  \end{block}
+\end{frame}
+
+\begin{frame}{Plotting Mathematical Functions}
+\begin{picture}(0,0)(0,0)
+    \put(30, -100)
+     { \includegraphics[width=.8\textwidth]{sin_x.png}}
+   \end{picture}
+
+\end{frame}
+
+\begin{frame}{Roadmap}
+  \begin{enumerate}
+\setbeamertemplate{enumerate items}[circle]
+  \item \Alert{W1: Python, Variables, and Functions}
+  \item W2: Strings and Designing Functions
+  \item W3: Booleans, Import and if Statements
+  \item W4: for Loops and Fancy String Manipulation
+  \end{enumerate}
+  \begin{block}{Lecture 1: Introduction to Python}
+      \begin{itemize}
+  \item What a Program is
+  \item  Installing Python
+  \item Types, Values
+  \end{itemize}
+  \end{block}
+\end{frame}
+
+\end{document}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
