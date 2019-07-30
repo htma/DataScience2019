@@ -308,6 +308,117 @@ $c$ : tensor([2, 6, 7, 8])
 
 \end{frame}
 
+\begin{frame}
+\begin{center}
+\Large{Tensors 2D} 
+\end{center}
+\end{frame}
+
+\begin{frame}{Examples of 2D Tensors}
+\begin{picture}(0,0)(0,0)
+    \put(0, -100)
+     { \includegraphics[width=\textwidth]{adog.png}}
+   \end{picture}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Tensor Creation in 2D}
+  \begin{block}{Creations}
+    a = [[11,12,13], [21,22,23], [31,32,33]]\\
+    A = torch.tensor(a) 
+  \end{block}
+
+\begin{block}{Built-in Methods}
+  A.ndimension() :  \\
+    A.shape: \\
+    A.size(): \\
+    A.numel(): \\
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Basic Operations in 2D}
+  \begin{block}{Tensors}
+    X = torch.tensor([[1,0], [0,1]]) \\
+    Y = torch.tensor([[2,1], [1,2]]) 
+  \end{block}
+  \begin{block}{Operations}
+    Z = X + Y \\
+    Z = 2 * Y \\
+    Z = X * Y  \\
+    Z = torch.mm(X, Y)
+  \end{block}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\Large{Derivatives}
+\end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Derivatives}
+  \begin{block}{}
+    $x$ = torch.tensor(2, requires$\_$grad=True) \\
+    $y = x**2$ \\
+    $y$.backward() \\
+    $x$.grad
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Derivatives}
+  \begin{block}{}
+    $x$ = torch.tensor(2, requires$\_$grad=True) \\
+    $z = x**2+2*x+1$ \\
+    $z$.backward() \\
+    $x$.grad
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Partial Derivatives}
+  \begin{block}{}
+    $u$ = torch.tensor(1, requires$\_$grad=True) \\
+    $v$ = torch.tensor(2, requires$\_$grad=True) \\
+    $f=u*v + u**2$ \\
+    $f$.backward() \\
+    $u$.grad \\
+    $v$.grad
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Cool Hack}
+  \begin{block}{}
+    $x$ = torch.linspace(-10,10,10, requires$\_$grad=True)\\
+    $Y$ = $x**2$ \\
+    $y = $ torch.sum($x**2$) \\
+    $y$.backward()
+  \end{block}
+  \begin{block}{}
+    plt.plot(x.detach().numpy(), Y.detach(), label='function')\\
+plt.plot(x.detach().numpy(), x.grad.detach().numpy(), label='derivative')\\
+plt.legend()
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{ReLU}
+  \begin{block}{}
+    import torch.nn.functional as F\\
+    $x$ = torch.linspace(-3,3,100, requires$\_$grad=True)\\
+    $Y$ = $F.relu(x)$ \\
+    $y = $ torch.sum(F.relu(x))) \\
+    $y$.backward()
+  \end{block}
+  \begin{block}{}
+    plt.plot(x.detach().numpy(), Y.detach(), label='function')\\
+plt.plot(x.detach().numpy(), x.grad.detach().numpy(), label='derivative')\\
+plt.legend()
+  \end{block}
+\end{frame}
+
 \begin{frame}{Roadmap}
   \begin{enumerate}
 \setbeamertemplate{enumerate items}[circle]
@@ -325,6 +436,143 @@ $c$ : tensor([2, 6, 7, 8])
   \end{block}
 \end{frame}
 
+\begin{frame}
+\begin{center}
+\Large{Dataset}
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Simple Dataset}
+  \begin{block}{}
+\small{
+\begin{verbatim}
+from torch.utils.data import Dataset 
+class toy_set(Dataset):
+  def __init__(self, length=100,transform=None):
+    self.x = 2*torch.ones(length,2) 
+    self.y = torch.ones(length,1)
+    self.len = length
+    self.transform = transform
+  def __getitem__(self, index):
+    sample = self.x[index], self.y[index]
+    if self.transform:
+       sample = self.transform(sample)
+    return sample
+  def __len__(self):
+    return self.len
+\end{verbatim}
+}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Example of Dataset}
+  \begin{block}{}
+\begin{verbatim}
+dataset = toy_set()
+len(data_set)
+dataset[0]
+
+for i in range(3):
+  x, y = dataset[i]
+  print(i, 'x:', x, 'y:', y)
+\end{verbatim}
+  \end{block}
+\begin{table}
+  \begin{tabular}{|c|c|c|c|c|c|c|}
+
+\hline
+%self.x & [2,2] & [2,2]\\
+self.x & [2,2] & [2,2] & [2,2] & $\ldots$ & [2,2] & [2,2] \\
+\hline
+self.y & 1 & 1 & 1 & $\ldots$ & 1 & 1\\
+\hline
+Index & 0 & 1 & 2 & $\ldots$ & 98 & 99 \\
+\hline
+  \end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\Large{Transforms}
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Transforms}
+  \begin{block}{}
+\begin{verbatim}
+class add_mult(object):
+  def __init__(self, addx=1, muly=1):
+    self.addx = addx
+    self.muly = muly
+
+  def __call__(self, sample):
+    x,y = sample[0], sample[1]
+    x += self.addx
+    y *= self.muly
+    sample = x,y
+    return sample
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Example of Transforms}
+  \begin{block}{}
+\begin{verbatim}
+dataset = toy_set()
+a_m = add_mult()
+x_, y_ = a_m(dataset[0])
+dataset[0]
+
+dataset_ = toy_set(transform=a_m)
+dataset_[0]
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\Large{Transforms Compose}
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Transforms Compose}
+  \begin{block}{}
+\begin{verbatim}
+class mult(object):
+  def __init__(self, mul=100):
+    self.mul = mul
+
+  def __call__(self, sample):
+    x,y = sample[0], sample[1]
+    x *= self.mul
+    y *= self.mul
+    sample = x,y
+    return sample
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Example of Transforms Compose}
+  \begin{block}{}
+\begin{verbatim}
+from torchvision import transforms
+
+data_transform = transforms.Compose(
+                  [add_mult(), mult()])
+
+data_set_tr = toy_set(
+                  transform=data_transform)
+dataset_set_tr[0]
+\end{verbatim}
+  \end{block}
+\end{frame}
 \end{document}
 %%% Local Variables:
 %%% mode: latex

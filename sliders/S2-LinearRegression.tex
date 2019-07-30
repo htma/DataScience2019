@@ -1,0 +1,291 @@
+% Python Programming S2: Linear Regression 
+% created on Jul 29, 2019
+
+\documentclass[14 pt]{beamer}
+\usetheme[
+	bullet=circle,		% Other option: square
+	bigpagenumber,		% circled page number on lower right
+	topline=true,			% colored bar at the top of the frame 
+	shadow=false,			% Shading for beamer blocks
+	]{Flip}
+
+\definecolor{UBCblue}{rgb}{0.04706, 0.13725, 0.26667} % UBC Blue (primary)
+\usecolortheme[named=UBCblue]{structure}
+\setbeamertemplate{frametitle}{\color{UBCblue}\bfseries\insertframetitle\par\vskip-6pt\hrulefill}
+
+%\usecolortheme[named=Mahogany]{structure} % Sample dvipsnames color
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+
+\graphicspath{{images/}}	% Put all images in this directory. Avoids clutter.
+
+\usetikzlibrary{backgrounds}
+\usetikzlibrary{mindmap,trees}	% For mind map
+
+% increase space between items
+\let\olditem\item
+\renewcommand{\item}{\olditem\vspace{4pt}}
+
+\newcommand{\comment}[1]{\textcolor{comment}{\footnotesize{#1}\normalsize}} % comment mild
+\newcommand{\Comment}[1]{\textcolor{Comment}{\footnotesize{#1}\normalsize}} % comment bold
+\newcommand{\COMMENT}[1]{\textcolor{COMMENT}{\footnotesize{#1}\normalsize}} % comment crazy bold
+\newcommand{\Alert}[1]{\textcolor{Alert}{#1}} % louder alert
+\newcommand{\ALERT}[1]{\textcolor{ALERT}{#1}} % loudest alert
+
+\tikzstyle{every picture}+=[remember picture]
+
+\author[mht]{CS}
+\title[Deep Learning with PyTorch]{Deep Learning with PyTorch}
+\institute{Northeastern University at Qinhuangdao}
+
+\begin{document}
+\begin{frame}[c]
+\begin{center}
+	\textcolor{normal text.fg!50!Comment}{\textbf{\Large{Deep Learning with PyTorch}}}
+	\vspace{4em}
+
+    \COMMENT{\large{Lecture 2: Linear Regression}} \\
+\vspace{4em}
+    \Comment{{Ma Haitao}} \\
+\comment{\textit{Northeastern University at Qinhuangdao}}\\
+\end{center}
+\end{frame}
+
+\begin{frame}{Outline}
+  \begin{itemize}
+  \item Liear Reguression 1-D
+  \item Problem: Prediction
+  \item Pytorch
+    \begin{itemize}
+    \item Class Linear
+    \item Build Custom Modules using nn.Modules
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Linear Regression}
+  \begin{itemize}
+  \item The predictor (independent) variable - $x$
+  \item The target (dependent) variable - $y$
+  \end{itemize}
+  \begin{equation}
+    y = b + wx
+  \end{equation}
+  \begin{itemize}
+  \item $b$: bias
+  \item $w$: the slope
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Simple Liear Regression}
+  \begin{equation}
+    \hat{y} = b + wx
+  \end{equation}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{block}{}
+\begin{verbatim}
+import torch
+
+w = torch.tensor(2.0, requires_grad=True)
+b = torch.tensor(-1.0, requires_grad=True)
+
+def forward(x): 
+  y = w*x + b
+  return y
+
+x = torch.tensor([[1.0]])
+x = torch.tensor([[1.0],[2.0]])
+yhat = forward(x)
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+% Class Linear 
+\begin{frame}[fragile]
+  \begin{block}{}
+\begin{verbatim}
+from torch.nn import Linear
+
+torch.manual_seed(1)
+model = Linear(in_feature=1, out_feature=1)
+print(list(model.parameters()))
+
+x = torch.tensor([[0]])
+yhat = model(x)
+x = torch.tensor([[1.0],[2.0]])
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+% custom Modules
+\begin{frame}[fragile]
+  \begin{block}{}
+\begin{verbatim}
+import torch.nn as nn
+class LR(nn.Module):
+  def __init__(self, D_in, D_out):
+    super(LR, self).__init__()
+    self.linear=nn.Linear(D_in, D_out)
+  def forward(self, x):
+    out = self.linear(x)
+    return out
+
+model = LR(1, 1)
+print(list(model.parameters()))
+x = torch.tensor([[1.0]])
+yhat = model(x)
+x = torch.tensor([[1.0], [2.0]])
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\Large{Linear Regression Training}
+\end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Simple Dataset}
+  \begin{equation*}
+    D = \{(x_1, y_1, (x_2, y_2), \ldots, (x_N, y_N)\}
+  \end{equation*}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Simple Linear Regression}
+  \begin{equation*}
+    f(x) = 1-3x
+  \end{equation*}
+  \begin{displaymath}
+    \mathbf{X} = 
+    \left[ \begin{array}{c}
+             -2 \\  0 \\  3 
+           \end{array} \right]
+         \end{displaymath}
+  \begin{displaymath}
+    \mathbf{Y} = f(\mathbf{X}) + Noise = 
+    \left[ \begin{array}{c}
+             7 \\ 1 \\  -8 
+           \end{array} \right] + 
+         \left[ \begin{array}{c}
+                  0.1 \\ 0 \\ -0.1
+                \end{array} \right] 
+              = \left[ \begin{array}{c}
+                         7.1 \\ 1 \\ -8.1
+                       \end{array} \right]              \end{displaymath}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\Large{Loss Function}
+\end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Simple Linear Regression}
+  \begin{itemize}
+  \item How do we determine the parameters
+  \begin{equation*}
+    \hat{y} = b + wx
+  \end{equation*}
+\item one point example: $(-2, 4)$
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Loss Function}
+  \begin{itemize}
+  \item In order to find the parameter we need to find how good our model
+    is
+  \item Loss: A quantity that is zero when our model provides a good
+    estimate and large when our model estimate is bad.
+  \item Loss Function:
+  \begin{equation*}
+    loss(w) = (y-\hat{y})^2 = (y_1 - wx_1)^2
+  \end{equation*}
+\item The goal is to determine the parameter that minimizes this function.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{fragile}
+  \frametitle{Example of One Point}
+  \begin{displaymath}
+\begin{array}{lll}
+\mathbf{Dataset} & : &  (4, -2) \\
+   \mathbf{Score Function} & : &  \ \hat{y}  =   w*x,  \\
+\mathbf{Loss Function} & : &  \ L(w)  =  (y - w*x)^2 
+\end{array}
+\end{displaymath}
+\begin{table}
+  \begin{tabular}{|c|c|}
+\hline
+$w$ & $L(w)$ \\
+\hline
+5 & 484 \\
+\hline
+1 & 36 \\
+\hline
+-1 & 4 \\
+\hline
+-5 & 324 \\
+\hline
+  \end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Derivative}
+  \begin{equation*}
+    L(w)=(-2-w*4)^2
+  \end{equation*}
+  \begin{displaymath}
+\begin{array}{lll}
+    \frac{\partial L(w)}{\partial w} & = & 2*(-2 - w*4) \\
+    & =  & -4-w*8 \\ 
+  & = & 0 \\
+  w & = & -\frac{1}{2}\\
+  \end{array}
+\end{displaymath}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Gradient Descent}
+  \begin{itemize}
+  \item A method to find the minimum of a function.
+  \item We want to find the value of the parameter that minimize the loss function.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Gradient Descent Iterations}
+    \begin{itemize}
+    \item We start off with an initial guess and for the first iteration we
+      simply add a value proportional to the derivative.
+    \item We update the parameter value and we repeat for the second
+      iteration.
+    \item And we continue to the $k$-th iteration.
+    \end{itemize}
+  \end{frame}
+  \begin{frame}
+\begin{displaymath}
+    \begin{array}{{lll}}
+      w^0  & =  & Guess \\
+      w^1 & = & w^0 - \eta \frac{\partial L(w^0)}{\partial w} \\
+      w^2 & = & w^1 - \eta \frac{\partial L(w^1)}{\partial w} \\      
+&  & \vdots  \\
+w^{k+1} & = & w^k - \eta \frac{\partial L(w^k)}{\partial w} \\
+    \end{array}
+  \end{displaymath}
+The parameter $\eta$ is known as learning rate, usually selected empirically.
+\end{frame}
+\end{document}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
