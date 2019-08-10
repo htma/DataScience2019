@@ -284,6 +284,143 @@ w^{k+1} & = & w^k - \eta \frac{\partial L(w^k)}{\partial w} \\
   \end{displaymath}
 The parameter $\eta$ is known as learning rate, usually selected empirically.
 \end{frame}
+
+\begin{frame}
+\begin{center}
+\Large{Cost Function: Mean Square Error}
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Mean Square Error}
+  \begin{itemize}
+  \item We obtain the parameters by minimizing the value for multiple points.
+  \end{itemize}
+  \begin{displaymath}
+\begin{array}{lll}
+\mathbf{Dataset}  : & &  \{(x_1,y_1), \ldots, (x_N, y_N)\} \\
+   \mathbf{Score Function}  :   \ \hat{y}  & = &  w*x + b,  \\
+\mathbf{Cost Function}  :  \ L(w,b)  & = & \frac{1}{N} \sum_{n=1}^{N} (y_n - w*x_n+b)^2 
+\end{array}
+\end{displaymath}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Example of cost Function}
+\textbf{Dataset}:
+  \begin{displaymath}
+ \{(x_1,y_1), (x_2, y_2), (x_3, y_3)\} 
+\end{displaymath}
+\textbf{Cost Function} : 
+\begin{displaymath}
+  \begin{array}{lll}
+ \ L(w,b)  & =  &  \frac{1}{3} \{(y_1 - w*x_1+b)^2 +  (y_2 - w*x_2+b)^2 
+    \\
+& & + (y_3 - w*x_3+b)^2 \}
+  \end{array}
+\end{displaymath}
+\end{frame}
+
+\begin{frame}{fragile}
+  \frametitle{Gradient Descent on Cost Function}
+  \textbf{Cost Function}  : 
+  \begin{displaymath}
+     \ L(w,b)   =  \frac{1}{N} \sum_{n=1}^{N} (y_n - w*x_n+b)^2 
+   \end{displaymath}
+\textbf{Gradient} :
+\begin{displaymath}
+\begin{array}{lll}
+    \frac{\partial L(w)}{\partial w} & = &
+                                           \frac{2}{N}\sum_{n=1}^N(y_n-w*x_n)x_n
+\end{array}  
+\end{displaymath}
+ \end{frame}
+ \begin{frame}[fragile]
+   \frametitle{Batch Gradient Descent}
+  \begin{displaymath}
+     \ L(w,b)   =  \frac{1}{N} \sum_{n=1}^{N} (y_n - w*x_n+b)^2 
+   \end{displaymath}
+   \begin{table}
+     \centering
+     \begin{tabular}{|l|l|l|l|}
+\hline
+       $x_1, y_1$ & $x_2, y_2$ & $\cdots$ & $x_N, y_N$ \\
+\hline
+     \end{tabular}
+   \end{table}
+   \begin{displaymath}
+    (y_1-w*x_1+b)^2+(y_2-w*x_2+b)^2+\cdots (y_N-w*x_N+b)^2
+   \end{displaymath}
+ \end{frame}
+
+ \begin{frame}[fragile]
+   \frametitle{Example of Batch Gradient Descent}
+\textbf{Batch\_Size = 3} : 
+  \begin{displaymath}
+     \ L(w,b)   =  \frac{1}{3} \sum_{n=1}^{3} (y_n - w*x_n+b)^2 
+   \end{displaymath}
+   \begin{table}
+     \centering
+     \begin{tabular}{|l|l|l|}
+\hline
+       $x_1=1, y_1=2$ & $x_2=3, y_2=6$ & $x_3=2, y_3=4$ \\
+\hline
+     \end{tabular}
+   \end{table}
+   \begin{displaymath}
+    L(w,b)= (2-w*1+b)^2+(6-w*3+b)^2+(4-w*2+b)^2
+   \end{displaymath}
+ \end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Data Set}
+  \begin{block}{}
+\begin{verbatim}
+w = torch.tensor(-10.0, requires_grad=True)
+X = torch.arange(-3,3,0.1).view(-1,1)
+f = -3*x
+plt.plot(X.numpy(), f.numpy())
+plot.show()
+
+Y = f + 0.1*torch.randn(X.size())
+
+plt.plot(X.numpy(), f.numpy())
+plt.plot(X.numpy(), Y.numpy(), 'ro')
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Model Definition}
+  \begin{block}{}
+\begin{verbatim}
+def forward(x):
+    y = w * x
+    return y
+
+def criterion(yhat, y):
+    return torch.mean((yhat-y) ** 2)
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Training Process}
+  \begin{block}{}
+\begin{verbatim}
+lr = 0.1
+total_loss = []
+for epoch in range(4):
+    yhat = forward(X)
+    loss = criterion(yhat, y)
+    loss.backward()
+
+    w.data = w.data - lr*w.grad.data
+    w.grad.data.zero_()
+    total_loss.append(loss)
+\end{verbatim}
+  \end{block}
+\end{frame}
 \end{document}
 %%% Local Variables:
 %%% mode: latex
