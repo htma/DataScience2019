@@ -1,0 +1,284 @@
+% Python Programming S2: Linear Classification
+% created on Aug 14, 2019
+
+\documentclass[14 pt]{beamer}
+\usetheme[
+	bullet=circle,		% Other option: square
+	bigpagenumber,		% circled page number on lower right
+	topline=true,			% colored bar at the top of the frame 
+	shadow=false,			% Shading for beamer blocks
+	]{Flip}
+
+\definecolor{UBCblue}{rgb}{0.04706, 0.13725, 0.26667} % UBC Blue (primary)
+\usecolortheme[named=UBCblue]{structure}
+\setbeamertemplate{frametitle}{\color{UBCblue}\bfseries\insertframetitle\par\vskip-6pt\hrulefill}
+
+%\usecolortheme[named=Mahogany]{structure} % Sample dvipsnames color
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+
+\graphicspath{{images/}}	% Put all images in this directory. Avoids clutter.
+
+\usetikzlibrary{backgrounds}
+\usetikzlibrary{mindmap,trees}	% For mind map
+
+% increase space between items
+\let\olditem\item
+\renewcommand{\item}{\olditem\vspace{4pt}}
+
+\newcommand{\comment}[1]{\textcolor{comment}{\footnotesize{#1}\normalsize}} % comment mild
+\newcommand{\Comment}[1]{\textcolor{Comment}{\footnotesize{#1}\normalsize}} % comment bold
+\newcommand{\COMMENT}[1]{\textcolor{COMMENT}{\footnotesize{#1}\normalsize}} % comment crazy bold
+\newcommand{\Alert}[1]{\textcolor{Alert}{#1}} % louder alert
+\newcommand{\ALERT}[1]{\textcolor{ALERT}{#1}} % loudest alert
+
+\tikzstyle{every picture}+=[remember picture]
+
+\author[mht]{CS}
+\title[Deep Learning with PyTorch]{Deep Learning with PyTorch}
+\institute{Northeastern University at Qinhuangdao}
+
+\begin{document}
+\begin{frame}[c]
+\begin{center}
+	\textcolor{normal text.fg!50!Comment}{\textbf{\Large{Deep Learning with PyTorch}}}
+	\vspace{4em}
+
+    \COMMENT{\large{Lecture *: Linear Classification}} \\
+\vspace{4em}
+    \Comment{{Ma Haitao}} \\
+\comment{\textit{Northeastern University at Qinhuangdao}}\\
+\end{center}
+\end{frame}
+
+\begin{frame}{Outline}
+  \begin{itemize}
+  \item ***
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Image Classification}
+  \begin{itemize}
+  \item the task of assigning an input image one label from a fixed set of
+    categories
+  \item one of the core problems in Computer Vision that has a large variety of practical applications
+  \item  many other seemingly distinct Computer Vision tasks (such as
+    object detection, segmentation) can be reduced to it
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{An Example}
+  \begin{picture}(0,0)(0,0)
+    \put(30, -100)
+     { \includegraphics[width=.8\textwidth]{cat_classify.png}}
+   \end{picture}
+\end{frame}
+
+\begin{frame}{Challenges for Computers}
+  \begin{picture}(0,0)(0,0)
+    \put(-5, -50)
+     { \includegraphics[width=1\textwidth]{challenges.jpeg}}
+   \end{picture}
+\end{frame}
+
+\begin{frame}{Data-driven approach}
+  \begin{itemize}
+  \item  How might we go about writing an algorithm that can classify
+    images into distinct categories? 
+  \item We provide the computer with many examples of each
+    class and then develop learning algorithms that look at these examples
+    and learn about the visual appearance of each class.
+  \item This approach is referred to as a \emph{data-driven approach},
+    since it relies on first accumulating a training dataset of labeled
+    images.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{An Example Training Set}
+  \begin{picture}(0,0)(0,0)
+    \put(-5, -80)
+     { \includegraphics[width=1\textwidth]{trainset.jpg}}
+   \end{picture}
+\end{frame}
+
+\begin{frame}{The Image Classification Pipeline}
+  % The task in Image Classification is to take an array of pixels that
+  % represents a single image and assign a label to it.
+\begin{itemize}
+\item \textbf{Input}: Our input consists of a set of $N$ images, each labeled
+  with one of $K$ different classes. [ \emph{training
+  set}].
+\item \textbf{Learning}: Our task is to use the training set to learn what
+  every one of the classes looks like. [ \emph{training a
+  classifier}, or \emph{learning a model}].
+\item \textbf{Evaluation}: We evaluate the quality of the
+  classifier by asking it to predict labels for a new set of images that it
+  has never seen before. We will then compare the true labels of these
+  images to the ones predicted by the classifier. 
+%Intuitively, we’re
+ % hoping that a lot of the predictions match up with the true answers
+  %(\emph{ground truth}).
+\end{itemize}
+\end{frame}
+
+\begin{frame}{CIFAR-10 Dataset}
+  \begin{itemize}
+  \item This dataset consists of 60,000 tiny images that are 32 pixels high
+    and wide
+  \item Each image is labeled with one of 10 classes (for example
+    “airplane, automobile, bird, etc”). 
+  \item These 60,000 images are partitioned into a training set of 50,000
+    images and a test set of 10,000 images.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Linear Classification Overview}
+Two components:
+  \begin{itemize}
+  \item  a \textbf{score function} that maps the raw data to class scores, 
+  \item and a \textbf{loss function} that quantifies the agreement between the
+    predicted scores and the ground truth labels.
+  \end{itemize}
+  We will then cast this as an optimization problem in which we will
+  minimize the loss function with respect to the parameters of the score
+  function.
+\end{frame}
+
+\begin{frame}{Parameterized mapping from images to label scores}
+  \begin{itemize}
+  \item training dataset of images:  $x_i \in R^D$, each associated with a
+    label $y_i$, Here $i=1\ldots N$ and $y_i \in 1 \ldots K$.
+%That is, we have N examples (each
+%  with a dimensionality D) and K distinct categories. 
+\item In
+  CIFAR-10,  we have a training set of $N = 50,000$ images, each with $D = 32 \times
+  32 \times 3 = 3072$ pixels, and $K = 10$.
+\item  Define the score function $f:R^D \mapsto R^K$ that
+  maps the raw image pixels to class scores.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Linear Classifier}
+  \begin{displaymath}
+    f(x_i,W,b)=Wx_i+b
+  \end{displaymath}
+  \begin{itemize}
+  \item the image $x_i$:   a single column vector of shape $[D \times 1]$
+  \item  the weights $W$:  a matrix of size $[K \times D]$, 
+  \item the bias $b$:   a vector of size $[K \times 1]$
+  \item $W$ and $b$ are the parameters of the function
+  \end{itemize}
+ % In CIFAR-10, $x_i$ is $[3072 \times 1]$ column, $W$ is $[10 \times 3072]$
+  %and $b$ is $[10 \times 1]$.
+% so 3072 numbers come into the function (the raw pixel values) and 10 numbers come out (the class scores). 
+\end{frame}
+\begin{frame}{Few Things to Note}
+  \begin{itemize}
+  \item The single matrix multiplication $Wx_i$ is
+    effectively evaluating 10 separate classifiers in parallel (one for
+    each class)
+  \item the input data $(x_i,y_i)$ as given and
+    fixed, but we have control over the setting of the parameters $W,b$
+%Our    goal will be to set these in such way that the computed scores match
+    %the ground truth labels across the whole training set. 
+  \item  once the learning is complete we can
+    discard the entire training set and only keep the learned
+    parameters
+  \item  classifying the test image involves a single
+    matrix multiplication and addition, which is significantly faster
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Bias Trick- $ f(x_i, W) = Wx_i$}
+
+\begin{picture}(0,0)(0,0)
+    \put(-5, -80)
+     { \includegraphics[width=1\textwidth]{wb.jpeg}}
+   \end{picture}
+\end{frame}
+
+\begin{frame}{Loss function}
+  \begin{itemize}
+  \item Score function defined from the pixel values to class scores, which
+    was parameterized by a set of weights $W$. 
+  \item we do have control over these weights and we want to set them so that
+    the predicted class scores are consistent with the ground truth labels
+    in the training data
+  \item Loss Function  measures our unhappiness with outcomes (\emph{cost
+    function}, or \emph{the objective})
+%m  the loss will be high if we’re doing a poor job of classifying the training data, and it will be low if we’re doing well.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{  Multiclass Support Vector Machine loss}
+  \begin{itemize}
+  \item The SVM loss is set up so that the SVM ``wants'' the correct class
+    for each image to a have a score higher than the incorrect classes by
+    some fixed margin $\Delta$. 
+  \item The SVM ``wants'' a certain outcome in the sense that the outcome
+    would yield a lower loss (which is good).
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{SVM Loss}
+  \begin{itemize}
+  \item  $x_i$: the $i$-th example pixels of image 
+  \item $y_i$: the label that specifies the index of the correct class
+  \item $s$: the class scores computed by the score function takes the pixels and computes the vector
+    f(xi,W) 
+  \item $s_j$:  the score for the $j$-th class is the j-th element:
+    $s_j=f(x_i,W)_j$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{}
+   The Multiclass SVM loss for the $i$-th example is:
+   \begin{displaymath}
+     L_i = \sum_{j\neq y_i}max(0, s_j-s_{y_i}+\Delta)
+   \end{displaymath}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Example of SVM Loss}
+  \begin{itemize}
+  \item $s=[13, -7, 11]$
+  \item $y_i=0$
+  \item $\Delta=10$
+  \end{itemize}
+  \begin{displaymath}
+    L_i = ?
+  \end{displaymath}
+  The SVM loss function wants the score of the correct class $y_i$ to be
+  larger than the incorrect class scores by at least by $\Delta$. If this
+  is not the case, we will accumulate loss.
+\end{frame}
+
+\begin{frame}
+  \frametitle{SVM Loss for Linear  Functions}
+Score Function:
+  \begin{displaymath}
+    f(x_i; W) = Wx_i
+  \end{displaymath}
+SVM Loss Function:
+  \begin{displaymath}
+         L_i = \sum_{j\neq y_i}max(0, w_j^Tx_i-w_{y_i}^Tx_i+\Delta)
+  \end{displaymath}
+where $w_j$ is the $j$-th row of $W$ reshaped as a column.
+
+the threshold at zero $max(0,-)$ function is often called the \emph{hinge
+  loss}.
+\end{frame}
+\begin{frame}
+  \begin{centering}
+    \emph{The loss function quantifies our unhappiness with predictions on
+      the training set.}
+  \end{centering}
+ \end{frame}
+\end{document}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
