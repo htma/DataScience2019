@@ -277,6 +277,135 @@ the threshold at zero $max(0,-)$ function is often called the \emph{hinge
       the training set.}
   \end{centering}
  \end{frame}
+
+ \begin{frame}
+   \frametitle{Regularization}
+   \begin{itemize}
+\item We wish to encode some preference for a certain set of weights $W$
+\item We can extend the loss function with a regularization penalty $R(W)$
+\item The most common regularization penalty is the \textbf{L2} norm that discourages large weights through an elementwise quadratic penalty over all parameters:
+  \begin{displaymath}
+    R(W) = \sum_k\sum_lw_{k,l}^2
+  \end{displaymath}
+   \end{itemize}
+ \end{frame}
+
+ \begin{frame}[fragile]
+   \frametitle{ The Full Multiclass SVM Loss }
+   The full loss for the dataset is the mean of $L_i$ over all training
+   examples together with a regularization term $R(W)$.
+   \begin{displaymath}
+     L = \underbrace{\frac{1}{N}\sum_i L_i}_{data \ loss} +
+     \underbrace{\lambda R(W)}_{regularization \ loss}
+   \end{displaymath}
+\small{
+   \begin{displaymath}
+     L   =   \frac{1}{N}\sum_i\sum_{j\neq y_i}[max(0, f(x_i;W)_j - f(x_i;
+     W)_{y_j}+\Delta)]   +      \lambda \sum_i\sum_lW_{k,l}^2
+   \end{displaymath}
+}
+Where $N$ is the number of training examples, $\lambda$ is a hyperparameter.
+ \end{frame}
+
+  \begin{frame}[fragile]
+    \frametitle{Python Implementation}
+\small{
+    \begin{block}{}
+ \begin{verbatim}
+def L_i_vectorized(x, y, W):
+  delta = 1.0
+  scores = W.dot(x)
+  margins = np.maximum(0, scores-scores[y]+delta)
+  margins[y] = 0
+  loss_i = np.sum(margins)
+  return loss_i
+ \end{verbatim}
+    \end{block}
+}
+  \end{frame}
+
+\begin{frame}
+\begin{center}
+\Large{Softmax Classification}
+\end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Softmax Classification}
+  \begin{itemize}
+  \item the generalization of binary Logistic
+   Regression classifier to multiple classes
+ \item  the SVM  treats the outputs $f(x_i,W)$ as  scores for each class
+ \item  the Softmax classifier gives  scores as the unnormalized log
+   probabilities for each class
+ \item  replace the hinge loss with a cross-entropy loss
+ \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Cross-Entropy Loss}
+  \begin{displaymath}
+    L_i = -log(\frac{e^{f_{y_i}}}{\sum_je^{f_j}}) \ or \ equivalently
+  \end{displaymath}
+  \begin{displaymath}
+    L_i = -f_{y_i}+ log\sum_je^{f_j}
+  \end{displaymath}
+where we are using the notation $f_j$ to mean the $j$-th element of the vector of class scores $f$.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Softmax Function}
+  \begin{displaymath}
+  f_j(z) = \frac{e^{z_j}}{\sum_k e^{z_k}}
+\end{displaymath}
+  \begin{itemize}
+  \item softmax function  takes a vector of arbitrary real-valued scores
+    (in z) 
+  \item squashes it to a vector of values between zero and one that sum
+    to one
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{SVM vs. Softmax }
+\begin{picture}(0,0)(0,0)
+    \put(-5, -80)
+     { \includegraphics[width=1\textwidth]{svmvssoftmax.png}}
+   \end{picture}
+\end{frame}
+
+\begin{frame}{Summary}
+  \begin{itemize}
+  \item We defined a score function $f(x, W, b) = Wx+b$ from image pixels to class scores.
+  \item  This parametric approach is that once we learn the parameters we
+    can discard the training data and , the prediction for a new test image
+    is fast.
+  \item We defined a loss function  that measures how compatible a given
+    set of parameters is with respect to the ground truth labels in the
+    training dataset. 
+  \item We also saw that the loss function was defined in such way that
+    making good predictions on the training data is equivalent to having a
+    small loss.
+  \end{itemize}
+\end{frame}
+\begin{frame}
+\begin{center}
+  \Large{But how do we efficiently determine the parameters that give the best (lowest) loss? }
+\end{center}
+\end{frame}
+
+\begin{frame}{Optimization}
+  \begin{itemize}
+  \item   A (parameterized) score function mapping the raw image pixels to
+    class scores 
+  \item A loss function that measured the quality of a particular set of
+    parameters based on how well the induced scores agreed with the ground
+    truth labels in the training data. 
+  \item \textbf{Optimization} is the process of finding the set of parameters W that
+    minimize the loss function.
+  \end{itemize}
+  
+\end{frame}
 \end{document}
 %%% Local Variables:
 %%% mode: latex
