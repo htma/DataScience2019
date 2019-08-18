@@ -1,0 +1,286 @@
+% Python Programming S4: Fully Connected Neural Network
+% created on Aug 18, 2019
+
+\documentclass[14 pt]{beamer}
+\usetheme[
+	bullet=circle,		% Other option: square
+	bigpagenumber,		% circled page number on lower right
+	topline=true,			% colored bar at the top of the frame 
+	shadow=false,			% Shading for beamer blocks
+	]{Flip}
+
+\definecolor{UBCblue}{rgb}{0.04706, 0.13725, 0.26667} % UBC Blue (primary)
+\usecolortheme[named=UBCblue]{structure}
+\setbeamertemplate{frametitle}{\color{UBCblue}\bfseries\insertframetitle\par\vskip-6pt\hrulefill}
+
+%\usecolortheme[named=Mahogany]{structure} % Sample dvipsnames color
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+
+\graphicspath{{images/}}	% Put all images in this directory. Avoids clutter.
+
+\usetikzlibrary{backgrounds}
+\usetikzlibrary{mindmap,trees}	% For mind map
+
+% increase space between items
+\let\olditem\item
+\renewcommand{\item}{\olditem\vspace{4pt}}
+
+\newcommand{\comment}[1]{\textcolor{comment}{\footnotesize{#1}\normalsize}} % comment mild
+\newcommand{\Comment}[1]{\textcolor{Comment}{\footnotesize{#1}\normalsize}} % comment bold
+\newcommand{\COMMENT}[1]{\textcolor{COMMENT}{\footnotesize{#1}\normalsize}} % comment crazy bold
+\newcommand{\Alert}[1]{\textcolor{Alert}{#1}} % louder alert
+\newcommand{\ALERT}[1]{\textcolor{ALERT}{#1}} % loudest alert
+
+\tikzstyle{every picture}+=[remember picture]
+
+\author[mht]{CS}
+\title[Deep Learning with PyTorch]{Deep Learning with PyTorch}
+\institute{Northeastern University at Qinhuangdao}
+
+\begin{document}
+\begin{frame}[c]
+\begin{center}
+	\textcolor{normal text.fg!50!Comment}{\textbf{\Large{Deep Learning with PyTorch}}}
+	\vspace{4em}
+
+    \COMMENT{\large{Lecture *: Fully Connected Neural Network}} \\
+\vspace{4em}
+    \Comment{{Ma Haitao}} \\
+\comment{\textit{Northeastern University at Qinhuangdao}}\\
+\end{center}
+\end{frame}
+
+\begin{frame}{Outline}
+  \begin{itemize}
+  \item ***
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Introduction}
+  \begin{itemize}
+  \item we will introduce some of the core
+    features of PyTorch, 
+  \item and build a fairly simple densely connected neural network to classify hand-written digits
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Computational Graphs}
+  \begin{itemize}
+  \item A computational graph is a set of calculations, which are called
+    \emph{nodes}, and these nodes are connected in a directional ordering of
+    computation. 
+  \item In other words, some nodes are dependent on other nodes for their
+    input, and these nodes in turn output the results of their calculations
+    to other nodes.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{An Example of Computational Graph}
+To calculate
+  \begin{displaymath}
+    a = (b + c) * (c + 2)
+  \end{displaymath}
+We can break this calculation up into the following steps/nodes:
+\begin{displaymath}
+  \begin{array}{lll}
+    d & = & b + c \\
+    e & = & c + 2 \\
+    a & = & d * e    
+  \end{array}
+\end{displaymath}
+\end{frame}
+
+\begin{frame}{A Simple Computational Graph}
+  \begin{picture}(0,0)(0,0)
+    \put(80, -100)
+     {\includegraphics[width=.5\textwidth]{simple_cg.png}}
+   \end{picture}
+\end{frame}
+
+\begin{frame}{The benefits of using a CG}
+  \begin{itemize}
+  \item  each node is like its
+  own independently functioning piece of code 
+\item  allows various performance optimizations to be
+  performed in running the calculations such as threading and multiple
+  processing / parallelism
+\item all the major deep learning frameworks involve constructing such
+  computational graphs
+\item through which neural network operations can be
+  built and through which gradients can be back-propagated
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Tensors}
+  \begin{itemize}
+  \item Tensors are matrix-like data structures which are essential
+    components in deep learning libraries and efficient computation. 
+  \item Graphical Processing Units (GPUs) are especially effective at
+    calculating operations between tensors, and this has spurred the surge
+    in deep learning capability in recent times.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Tensor Operations}
+  \begin{block}{}
+\begin{verbatim}
+  import torch
+  x = torch.Tensor(2, 3)
+  x = torch.rand(2, 3)
+  x = torch.ones(2, 3)
+
+  y = torch.ones(2, 3) * 2
+  x + y 
+  y[:,1] = y[:, 1] + 1
+\end{verbatim}
+  \end{block}  
+\end{frame}
+
+\begin{frame}{Autograd in PyTorch}
+  \begin{itemize}
+  \item In any deep learning library, there needs to be a mechanism where
+    error gradients are calculated and back-propagated through the
+    computational graph.
+  \item This \textbf{Variable} class wraps a tensor, and allows automatic gradient
+    computation on the tensor when the \textbf{.backward()} function is called.
+  \item The \emph{object} contains the data of the tensor, the \emph{gradient} of the
+    tensor (once computed with respect to some other value i.e. the loss)
+    and also contains a reference to whatever function created the variable
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{An Example of Autograd}
+\begin{block}{}
+\begin{verbatim}
+  x = Variable(torch.ones(2, 2) * 2, 
+               requires_grad=True)
+  z = 2 * (x * x) + 5 * x
+
+  z.backward(torch.ones(2, 2))
+  print(x.grad)
+\end{verbatim}
+\end{block}
+\end{frame}
+
+\begin{frame}{Creating a Neural Network}
+  we will create a simple 4-layer fully connected neural network to
+  classify the hand-written digits of the MNIST dataset.
+\end{frame}
+
+\begin{frame}{Network Architecture}
+  \begin{picture}(0,0)(0,0)
+    \put(50, -100)
+     {\includegraphics[width=.7\textwidth]{fully_network.jpg}}
+   \end{picture}
+\end{frame}
+
+\begin{frame}[fragile]{The Neural Network Class}
+  \begin{block}{}
+\begin{verbatim}
+import torch.nn as nn
+import torch.nn.functional as F
+
+class Net(nn.Module):
+    def __init__(self):
+        super(Net, self).__init__()
+        self.fc1 = nn.Linear(28 * 28, 200)
+        self.fc2 = nn.Linear(200, 200)
+        self.fc3 = nn.Linear(200, 10)
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Define Forward Function}
+  \begin{block}{}
+\begin{verbatim}
+def forward(self, x):
+    x = F.relu(self.fc1(x))
+    x = F.relu(self.fc2(x))
+    x = self.fc3(x)
+    return F.log_softmax(x)
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Create an Instance of Model}
+  \begin{block}{}
+\begin{verbatim}
+  net = Net()
+  print(net)
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Training the Network}
+  \begin{block}{}
+\begin{verbatim}
+# create a stochastic gradient descent optimizer
+optimizer = optim.SGD(net.parameters(), lr=learning_rate, momentum=0.9)
+# create a loss function
+criterion = nn.NLLLoss()
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Main Training Loop}
+\footnotesize{
+  \begin{block}{}
+\begin{verbatim}
+for epoch in range(epochs):
+  for batch_idx, (data, target) in enumerate(train_loader):
+    data, target = Variable(data), Variable(target)
+    data = data.view(-1, 28*28)
+
+    optimizer.zero_grad()
+
+    net_out = net(data)
+    loss = criterion(net_out, target)
+
+    loss.backward()
+    optimizer.step()
+\end{verbatim}
+  \end{block}
+}
+\end{frame}
+
+\begin{frame}[fragile]{Testing the Network}
+\footnotesize{
+  \begin{block}{}
+\begin{verbatim}
+test_loss, correct = 0, 0
+
+for data, target in test_loader:
+  data, target = Variable(data), Variable(target)
+  data = data.view(-1, 28 * 28)
+  net_out = net(data)
+
+  # sum up batch loss
+  test_loss += criterion(net_out, target).data[0]
+
+  # get the index of the max log-probability
+  pred = net_out.data.max(1)[1]
+  correct += pred.eq(target.data).sum()
+
+test_loss /= len(test_loader.dataset)
+\end{verbatim}
+  \end{block}
+}
+\end{frame}
+\begin{frame}
+  \Large{
+    \begin{center}
+      That's all!
+    \end{center}
+  }
+\end{frame}
+\end{document}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
