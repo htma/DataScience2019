@@ -1,0 +1,396 @@
+% PyTorch Programming S5: convolutional Neural Networks
+% created on Aug 18, 2019
+
+\documentclass[14 pt]{beamer}
+\usetheme[
+	bullet=circle,		% Other option: square
+	bigpagenumber,		% circled page number on lower right
+	topline=true,			% colored bar at the top of the frame 
+	shadow=false,			% Shading for beamer blocks
+	]{Flip}
+
+\definecolor{UBCblue}{rgb}{0.04706, 0.13725, 0.26667} % UBC Blue (primary)
+\usecolortheme[named=UBCblue]{structure}
+\setbeamertemplate{frametitle}{\color{UBCblue}\bfseries\insertframetitle\par\vskip-6pt\hrulefill}
+
+%\usecolortheme[named=Mahogany]{structure} % Sample dvipsnames color
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+
+\graphicspath{{images/}}	% Put all images in this directory. Avoids clutter.
+
+\usetikzlibrary{backgrounds}
+\usetikzlibrary{mindmap,trees}	% For mind map
+
+% increase space between items
+\let\olditem\item
+\renewcommand{\item}{\olditem\vspace{4pt}}
+
+\newcommand{\comment}[1]{\textcolor{comment}{\footnotesize{#1}\normalsize}} % comment mild
+\newcommand{\Comment}[1]{\textcolor{Comment}{\footnotesize{#1}\normalsize}} % comment bold
+\newcommand{\COMMENT}[1]{\textcolor{COMMENT}{\footnotesize{#1}\normalsize}} % comment crazy bold
+\newcommand{\Alert}[1]{\textcolor{Alert}{#1}} % louder alert
+\newcommand{\ALERT}[1]{\textcolor{ALERT}{#1}} % loudest alert
+
+\tikzstyle{every picture}+=[remember picture]
+
+\author[mht]{CS}
+\title[Deep Learning with PyTorch]{Deep Learning with PyTorch}
+\institute{Northeastern University at Qinhuangdao}
+
+\begin{document}
+\begin{frame}[c]
+\begin{center}
+	\textcolor{normal text.fg!50!Comment}{\textbf{\Large{Deep Learning with PyTorch}}}
+	\vspace{4em}
+
+    \COMMENT{\large{Lecture *: Convolutional Neural Networks}} \\
+\vspace{4em}
+    \Comment{{Ma Haitao}} \\
+\comment{\textit{Northeastern University at Qinhuangdao}}\\
+\end{center}
+\end{frame}
+
+\begin{frame}{Outline}
+  \begin{itemize}
+  \item ***
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Introduction}
+  \begin{itemize}
+  \item we will introduce some of the core
+    features of PyTorch, 
+  \item and build a fairly simple densely connected neural network to classify hand-written digits
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{A Simple CNN Architecture}
+  \begin{picture}(0,0)(0,0)
+    \put(-20, -60)
+     {\includegraphics[width=1.12\textwidth]{cnn.png}}
+   \end{picture}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Introduction}
+  \begin{itemize}
+  \item Present just such a deep learning method that
+    can achieve very high accuracy in image classification tasks - the
+    \textbf{Convolutional Neural Network (CNN)}
+  \item Show you both the theory and practical application of CNNs in PyTorch
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Why Convolutional Neural Networks?}
+  By adding a lot of additional layers, we come across some problems:
+  \begin{itemize}
+  \item The vanishing gradient problem 
+  \item Overfitting: the number of trainable parameters in the
+    model (i.e. the weights) can grow rapidly,  the training
+    slows down or becomes practically impossible
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Convolutional Neural Networks}
+  \begin{itemize}
+  \item CNNs try to solve overfitting problem by
+    exploiting correlations between adjacent inputs in images
+  \item Not every node in the network needs to be connected to every other
+    node in the next layer - and this cuts down the number of weight
+    parameters required to be trained in the model
+  \item CNNs also have some other tricks which improve training
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Convolution}
+  \begin{figure}
+     \includegraphics[width=.9\textwidth]{filter.jpg}
+     \caption{Moving $2\times 2$ filter (all weights $= 0.5$)}
+   \end{figure}
+ \end{frame}
+
+\begin{frame}{Moving Filter Node Diagram}
+  \begin{figure}
+     \includegraphics[width=.6\textwidth]{moving_filter.jpg}
+     \caption{Moving $2\times 2$ filter- node diagram.}
+   \end{figure}
+ \end{frame}
+
+ \begin{frame}{Reducing Parameters/Weights}
+   \begin{itemize}
+   \item Sparse connections - not every node in the first/input layer is
+     connected to every node in the second layer
+   \item Constant filter parameters - each filter has a certain set of
+     weights that are applied for each convolution operation
+   \end{itemize}
+ \end{frame}
+
+ \begin{frame}{Feature Mapping}
+   \begin{itemize}
+   \item The next step in the Convolutional Neural Network structure is to
+     pass the output of the convolution operation through a non-linear
+     activation function
+   \item each convolutional filter can be trained to ``search'' for
+     different features in an image, which can then be used in
+     classification
+   \item any convolution layer needs multiple filters which are trained to
+     detect different features
+   \end{itemize}
+ \end{frame}
+
+\begin{frame}{Multiple Filters}
+  \begin{figure}
+     \includegraphics[width=\textwidth]{multiple_filters.jpg}
+     \caption{Multiple convolutional filters.}
+   \end{figure}
+ \end{frame}
+
+ \begin{frame}
+   \frametitle{Channels}
+   \begin{itemize}
+   \item these multiple filters are commonly called \emph{channels} in deep
+     learning
+   \item Each of these channels will end up being trained to detect certain
+     key features in the image
+   \item The output of a convolution layer, for a gray-scale image like the
+     MNIST dataset, will therefore actually have 3 dimensions – 2D for each
+     of the channels, then another dimension for the number of different
+     channels
+   \end{itemize}
+ \end{frame}
+
+ \begin{frame}
+   \begin{center}
+     \Large{Pooling}
+   \end{center}
+ \end{frame}
+
+ \begin{frame}{Benefits of Pooling}
+   \begin{itemize}
+   \item It reduces the number of parameters in your model by a process
+     called \emph{down-sampling}
+   \item It makes feature detection more robust to object orientation and
+     scale changes
+   \end{itemize}
+ \end{frame}
+
+ \begin{frame}
+      \frametitle{What is Pooling?}
+      \begin{itemize}
+      \item It is another sliding window type technique,
+         applies a statistical
+        function of some type over the contents of its window
+      \item \emph{max pooling} applies the
+        \textbf{max()} function over the contents of the window
+      \item \emph{mean pooling} which takes the statistical mean of
+        the contents
+      \end{itemize}
+ \end{frame}
+
+ \begin{frame}
+   \frametitle{Max Pooling}
+   \begin{figure}
+     \centering
+     \includegraphics[width=\textwidth]{max_pooling.jpg}
+     \caption{Max pooling example (with padding).}
+   \end{figure}
+ \end{frame}
+
+ \begin{frame}{Strides and down-sampling}
+   \begin{itemize}
+   \item Strides:  the pooling window
+   shifts step length  each time 
+ \item the stride can shfit in both the x  and y directions,
+   it is actually specified as $[2, 2]$
+ \item Down-Sampling:  reduces the output size and then the number of trainable
+   parameters in the model
+ \end{itemize}
+\end{frame}
+
+\begin{frame}{Padding}
+  \begin{itemize}
+  \item Padding is add   extra columns and rows  to the  input,  to ensure
+    that the pooling window can operate correctly with a stride length
+  \item padding  nodes are basically dummy nodes, they are basically invisible to the max
+  pooling operation
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Why is pooling used?}
+  \begin{itemize}
+  \item To make the detection of certain features
+    somewhat invariant to scale and orientation changes
+  \item  it generalizes over lower
+    level, more complex information
+  \item Pooling can assist with  higher levels, generalized
+    feature selection
+  \item Pooling acts as a generalizer of the lower level data, and enables
+    the network to move from high resolution data to lower resolution
+    information
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Why Pooling}
+  \begin{figure}
+    \centering
+     \includegraphics[width=\textwidth]{pooling.jpg}
+    \caption{Stylized representation of pooling.}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{ Full Convolutional Neural network}
+  \begin{figure}
+    \centering
+     \includegraphics[width=\textwidth]{fully_cnn.png}
+    \caption{A fully convolutional neural network.}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{The Fully Connected Layer}
+  \begin{itemize}
+  \item  a CNN takes high
+    resolution data and effectively resolves that into representations of
+    objects
+  \item  The fully connected layer can therefore be thought of as
+    attaching a standard classifier onto the information-rich output of the
+    network, to ``interpret'' the results and finally produce a
+    classification result
+  \item In order to attach this fully connected layer to
+    the network, the dimensions of the output of the Convolutional Neural
+    Network need to be flattened
+  \end{itemize}
+\end{frame}
+
+ \begin{frame}
+   \begin{center}
+     \Large{Implementing Convolutional Neural Networks}
+   \end{center}
+ \end{frame}
+
+\begin{frame}{A Simple CNN Architecture}
+  \begin{picture}(0,0)(0,0)
+    \put(-20, -60)
+     {\includegraphics[width=1.12\textwidth]{cnn.png}}
+   \end{picture}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Step by Step}
+ \setbeamertemplate{enumerate items}[circle]
+  \begin{enumerate}
+  \item  Loading the dataset
+  \item Creating the model
+  \item Training the model
+  \item Testing the model
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Loading the Dataset}
+  \begin{block}{Definte some Hyperparameters}
+\begin{verbatim}
+  num_epochs = 5
+  num_classes = 10
+  batch_size = 100
+  learning_rate = 0.001
+
+  DATA_PATH = './data'
+  MODEL_STORE_PATH = './model'
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]{}
+\footnotesize{
+  \begin{block}{Setup Transforms and Load Dataset}
+\begin{verbatim}
+trans = transforms.Compose([transforms.ToTensor(), 
+          transforms.Normalize((0.1307,), (0.3081,))])
+
+train_dataset = torchvision.datasets.MNIST(root=DATA_PATH, 
+                  train=True, transform=trans, download=True)
+
+test_dataset =  torchvision.datasets.MNIST(root=DATA_PATH, 
+                  train=False, transform=trans)
+
+train_loader = DataLoader(dataset=train_dataset, 
+                 batch_size=batch_size, shuffle=True)
+test_loader = DataLoader(dataset=test_dataset, 
+                 batch_size=batch_size, shuffle=False)
+\end{verbatim}
+  \end{block}
+}
+\end{frame}
+
+
+\begin{frame}[fragile]{}
+\footnotesize{
+  \begin{block}{}
+\begin{verbatim}
+class ConvNet(nn.Module):
+    def __init__(self):
+        super(ConvNet, self).__init__()
+        self.layer1 = nn.Sequential(
+            nn.Conv2d(1, 32, kernel_size=5, 
+                      stride=1, padding=2),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2))
+        self.layer2 = nn.Sequential(
+            nn.Conv2d(32, 64, kernel_size=5, 
+                      stride=1, padding=2),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2))
+
+        self.fc1 = nn.Linear(7 * 7 * 64, 1000)
+        self.fc2 = nn.Linear(1000, 10)
+\end{verbatim}
+  \end{block}
+}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Output Size}
+  The output size of any dimension from either a convolutional filtering or
+  pooling operation can be calculated by the following equation:
+  \begin{displaymath}
+    W_{out} = \frac{W_{in}-F+2P}{S} + 1
+  \end{displaymath}
+  \begin{itemize}
+  \item   $W{in}$ is the width of the input, 
+  \item $F$ is the filter size, 
+  \item $P$ is the padding
+\item and $S$ is the stride
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{block}{Define Data Flow}
+\begin{verbatim}
+def forward(self, x):
+    out = self.layer1(x)
+    out = self.layer2(out)
+    out = out.reshape(out.size(0), -1)
+
+    out = self.fc1(out)
+    out = self.fc2(out)
+    return out
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Training the Model}
+  
+\end{frame}
+\end{document}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
