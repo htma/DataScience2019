@@ -385,9 +385,107 @@ def forward(self, x):
   \end{block}
 \end{frame}
 
-\begin{frame}
+\begin{frame}[fragile]
   \frametitle{Training the Model}
-  
+  \begin{block}{Loss and Optimizer}
+\begin{verbatim}
+model = ConvNet()
+
+criterion = nn.CrossEntropyLoss()
+optimizer = torch.optim.Adam(
+              model.parameters(), 
+              lr=learning_rate)
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Training the Model}
+\footnotesize{
+  \begin{block}{Training Loop}
+\begin{verbatim}
+loss_list = []
+
+for epoch in range(num_epochs):
+    for i, (images, labels) in enumerate(train_loader):
+        outputs = model(images)
+        loss = criterion(outputs, labels)
+        loss_list.append(loss.item())
+
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+\end{verbatim}
+  \end{block}
+}
+\end{frame}
+\begin{frame}[fragile]
+  \frametitle{Training the Model}
+\footnotesize{
+  \begin{block}{Track the Accuracy}
+\begin{verbatim}
+for epoch in range(num_epochs):
+  for i, (images, labels) in enumerate(train_loader):
+          ...
+
+      total = labels.size(0)
+      _, predicted = torch.max(outputs.data, 1)
+      correct = (predicted == labels).sum().item()
+      acc_list.append(correct / total)
+
+      if (i + 1) % 100 == 0:
+        print('Epoch [{}/{}], Loss: {:.4f}, Accuracy: {:.2f}%'
+                  .format(epoch + 1, num_epochs, loss.item(),
+                          (correct / total) * 100))
+\end{verbatim}
+  \end{block}
+}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Testing the Model}
+\footnotesize{
+  \begin{block}{}
+\begin{verbatim}
+model.eval()
+with torch.no_grad():
+    correct = 0
+    total = 0
+    for images, labels in test_loader:
+        outputs = model(images)
+        _, predicted = torch.max(outputs.data, 1)
+        total += labels.size(0)
+        correct += (predicted == labels).sum().item()
+
+    print('Test Accuracy: {} %'.format((correct/total) * 100))
+
+# Save the model and plot
+torch.save(model.state_dict(), 
+          MODEL_STORE_PATH + 'conv_net_model.ckpt')
+\end{verbatim}
+  \end{block}
+}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Plotting the Loss and Accuracy}
+  \begin{figure}
+    \centering
+    \includegraphics[width=.9\textwidth]{bokeh_plot.png}
+    \caption{Training results}
+  \end{figure}
+\end{frame}
+\begin{frame}
+  \frametitle{Summary}
+  \begin{itemize}
+  \item  You have learnt all about the benefits and
+    structure of Convolutional Neural Networks and how they work
+  \item  You have
+    also learnt how to implement them in the awesome PyTorch deep learning
+    framework – a framework which, in my view, has a big future. 
+  \item I hope it
+    was useful – have fun in your deep learning journey!
+  \end{itemize}
 \end{frame}
 \end{document}
 %%% Local Variables:
