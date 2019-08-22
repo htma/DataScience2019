@@ -1,0 +1,762 @@
+% Python Programming S2: Introduction
+% created on Aug 30, 2019 by mht
+
+\documentclass[14 pt]{beamer}
+\usetheme[
+	bullet=circle,		% Other option: square
+	bigpagenumber,		% circled page number on lower right
+	topline=true,			% colored bar at the top of the frame 
+	shadow=false,			% Shading for beamer blocks
+	]{Flip}
+
+\definecolor{UBCblue}{rgb}{0.04706, 0.13725, 0.26667} % UBC Blue (primary)
+\usecolortheme[named=UBCblue]{structure}
+\setbeamertemplate{frametitle}{\color{UBCblue}\bfseries\insertframetitle\par\vskip-6pt\hrulefill}
+
+%\usecolortheme[named=Mahogany]{structure} % Sample dvipsnames color
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+
+\graphicspath{{images/}}	% Put all images in this directory. Avoids clutter.
+
+\usetikzlibrary{backgrounds}
+\usetikzlibrary{mindmap,trees}	% For mind map
+
+% increase space between items
+\let\olditem\item
+\renewcommand{\item}{\olditem\vspace{4pt}}
+
+\newcommand{\comment}[1]{\textcolor{comment}{\footnotesize{#1}\normalsize}} % comment mild
+\newcommand{\Comment}[1]{\textcolor{Comment}{\footnotesize{#1}\normalsize}} % comment bold
+\newcommand{\COMMENT}[1]{\textcolor{COMMENT}{\footnotesize{#1}\normalsize}} % comment crazy bold
+\newcommand{\Alert}[1]{\textcolor{Alert}{#1}} % louder alert
+\newcommand{\ALERT}[1]{\textcolor{ALERT}{#1}} % loudest alert
+
+\tikzstyle{every picture}+=[remember picture]
+
+\author[mht]{CS}
+\title[Deep Learning with PyTorch]{Deep Learning with PyTorch}
+\institute{Northeastern University at Qinhuangdao}
+
+\begin{document}
+\begin{frame}[c]
+\begin{center}
+	\textcolor{normal text.fg!50!Comment}{\textbf{\Large{Deep Learning with PyTorch}}}
+	\vspace{4em}
+
+    \COMMENT{\large{Lecture 1: PyTorch Basics}} \\
+\vspace{4em}
+    \Comment{{Ma Haitao}} \\
+\comment{\textit{Northeastern University at Qinhuangdao}}\\
+\end{center}
+\end{frame}
+
+\begin{frame}{Outline}
+  \begin{itemize}
+  \item Matrics
+  \item Tensors
+  \item Derivatives
+  \item Datasets 
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\Large{Matrics: Rectangular Array of Numbers}
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]{Creating Matrics}
+  \begin{block}{Create a list}
+\begin{verbatim}
+  arr = [[1,2], [3,4]] 
+\end{verbatim}
+  \end{block}
+  \begin{block}{Create numpy array via list}
+\begin{verbatim}
+  import numpy as np
+  np.array(arr) 
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Create matrices with Default Values}
+  \begin{block}{Create 2*2 numpy array of 1's}
+\begin{verbatim}
+  np.ones((2, 2))
+\end{verbatim}
+  \end{block}
+  \begin{block}{Create 2*2 numpy array of random numbers}
+\begin{verbatim}
+  np.random.rand(2, 2)
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Seeds for Reproducibility}
+  \begin{itemize}
+  \item Why do we need seeds?
+  \item We need seeds to enable reproduction experimental results.
+  \end{itemize}
+  \begin{block}{Create seed to enable fixed random numbers }
+\begin{verbatim}
+  np.random.seed(0)
+  np.random.rand(2, 2)
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\Large{Tensors 1D} 
+\end{center}
+\end{frame}
+
+\begin{frame}{Objectives}
+\begin{itemize}
+  \item The Basics
+  \item Data types
+  \item Indexing and Slicing
+  \item Basic Operations
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \Large{The Basics}
+\end{frame}
+\begin{frame}
+  \frametitle{What is a Tensor?}
+  \begin{itemize}
+  \item Tensor is a data structure representing multi-dimensional array. 
+  \item It is similar to a NumPy ndarray. 
+  \item It’s size is equivalent to the shape of the NumPy ndarray.
+  \end{itemize}
+\end{frame}
+\begin{frame}{Tensor Basics}
+  \begin{itemize}
+  \item 0-D: 1, 2, 0.2, 10
+  \item 1-D:  simple an array of numbers
+ \setbeamertemplate{enumerate items}[circle]
+    \begin{enumerate}
+    \item A row in a data database
+    \item A vector
+    \item Time series
+    \end{enumerate}
+  \item 2-D: a matrix of numbers
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{An Example of 2D Tensors}
+\begin{picture}(0,0)(0,0)
+    \put(0, -100)
+     { \includegraphics[width=\textwidth]{adog.png}}
+   \end{picture}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Data Types}
+\begin{table}
+\footnotesize{ 
+  \begin{tabular}{lll}
+\hline
+    Data type & dtype & Tensor types \\
+\hline
+    32-bit floating point & torch.float32 or torch.float &
+                                                           torch.FloatTensor
+    \\
+    64-bit floating point & torch.float64 or torch.double &
+                                                           torch.DoubleTensor
+    \\
+  16-bit floating point & torch.float16 or torch.half &
+                                                           torch.HalfTensor
+    \\
+  
+    8-bit integer (unsigned) & torch.uint8  &
+                                                           torch.ByteTensor
+    \\
+    8-bit integer (signed) & torch.int8 &
+                                                           torch.CharTensor
+    \\
+    16-bit integer (signed) & torch.int16 or torch.short &
+                                                           torch.ShortTensor
+    \\
+    32-bit integer (signed) & torch.int32 or torch.int &
+                                                           torch.IntTensor
+    \\
+    64-bit integer (signed) & torch.int64 or torch.long & 
+                                                           torch.LongTensor
+    \\
+\hline  
+  \end{tabular}
+}
+\end{table}
+\end{frame}
+
+\begin{frame}{Create 1-D Tensors}
+\begin{block}{}
+import torch \\
+$a$ = torch.tensor([0, 1, 2, 3, 4])\\
+$a$.dtype : torch.int64 \\
+$a$.type() : torch.LongTensor
+\end{block}
+\begin{block}{}
+$a$ = torch.tensor([0.0, 1.0, 2.0, 3.0, 4.0])\\
+$a$.dtype :  torch.float32 \\
+$a$.type() : torch.FloatTensor
+\end{block}
+
+\begin{block}{}
+$a$ = torch.tensor([0, 1, 2, 3, 4])\\
+$a$.size() : torch.Size(5) \\
+$a$.ndimension() : 1
+\end{block}
+\end{frame}
+
+% \begin{frame}
+% \begin{block}{}
+% $a$ = torch.tensor([0, 1, 2, 3, 4])\\
+% $a\_col$ = $a$.view(5, 1) \\
+% $a\_col$ = $a$.view(-1, 1) 
+% \end{block}
+% \end{frame}
+
+\begin{frame}
+  \frametitle{ Create 2-D Tensors}
+  \begin{block}{Creations}
+    a = [[11,12,13], [21,22,23], [31,32,33]]\\
+    A = torch.tensor(a) 
+  \end{block}
+
+\begin{block}{Built-in Methods}
+  A.ndimension() : 2 \\
+    A.shape: torch.size([3, 3]) \\
+    A.size(): torch.size([3, 3]) \\
+    A.numel(): 9 \\
+  \end{block}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\Large{NumPy and Torch Bridge}
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{NumPy to PyTorch}
+  \begin{block}{}
+\begin{verbatim}
+np_array = np.ones((2, 2))
+torch_tensor = torch.from_numpy(np_array)
+\end{verbatim}
+  \end{block}
+
+  \begin{block}{}
+\begin{verbatim}
+np.array = np.ones((2,2), dtype=np.int64)
+torch_tensor = torch.from_numpy(np_array)
+\end{verbatim}
+  \end{block}
+
+  \begin{block}{}
+\begin{verbatim}
+np.array = np.ones((2,2), dtype=np.float32)
+torch_tensor = torch.from_numpy(np_array)
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{PyTorch to NumPy }
+\begin{block}{Create pytorch tensor of 1's}
+\begin{verbatim}
+  torch_tensor  = torch.ones(2, 2)
+  type(torch_tensor)
+\end{verbatim}
+\end{block}
+
+\begin{block}{Convert tensor to numpy}
+\begin{verbatim}
+  torch_to_numpy = torch_tensor.numpy()
+  type(torch_to_numpy)
+\end{verbatim}
+\end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Indexing and Slicing}
+\begin{block}{}
+$c$  = torch.tensor([2, 3, 4, 5]) \\
+$d$ = c[1:4] \\
+$d$ : tensor([3,4,5])
+\end{block}
+\begin{block}{}
+$c$  = torch.tensor([2, 3, 4, 5]) \\
+$c$[1:4] = torch.tensor([6 ,7 , 8]) \\
+$c$ : tensor([2, 6, 7, 8])
+\end{block}
+\end{frame}
+
+\begin{frame}
+  \begin{center}
+    \Large{Tensor Operations}
+  \end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Basic Operations}
+  \begin{block}{Resizing Tensor}
+\begin{verbatim}
+  a = torch.ones(2, 2)
+  a.size(): torch.Size([2, 2])
+  a.view(4): tensor([1.,1.,1.,1.])
+  a.view(4).size(): torch.Size([4])
+\end{verbatim}
+  \end{block}
+\end{frame}
+\begin{frame}[fragile]
+  \frametitle{Tensor Additions}
+  \begin{block}{Element-wise}
+\begin{verbatim}
+    X = torch.tensor([[1,0], [0,1]]) 
+    Y = torch.tensor([[2,1], [1,2]]) 
+    Z = X + Y 
+\end{verbatim}
+  \end{block}
+  \begin{block}{Alternative element-wise addition}
+\begin{verbatim}
+    Z = torch.add(X, Y)
+\end{verbatim}
+  \end{block}
+  \begin{block}{In-place element-wise addition}
+\begin{verbatim}
+    X.add_(Y) 
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Tensor Subtraction}
+  \begin{block}{Element-wise}
+\begin{verbatim}
+    X = torch.tensor([[1,0], [0,1]]) 
+    Y = torch.tensor([[2,1], [1,2]]) 
+    Z = X - Y 
+\end{verbatim}
+  \end{block}
+  \begin{block}{Alternative element-wise addition}
+\begin{verbatim}
+    Z = torch.sub(X, Y)
+\end{verbatim}
+  \end{block}
+  \begin{block}{In-place element-wise addition}
+\begin{verbatim}
+    X.sub_(Y) 
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Tensor Multration}
+  \begin{block}{Element-wise}
+\begin{verbatim}
+    X = torch.tensor([[1,0], [0,1]]) 
+    Y = torch.tensor([[2,1], [1,2]]) 
+    Z = X * Y 
+\end{verbatim}
+  \end{block}
+  \begin{block}{Alternative element-wise addition}
+\begin{verbatim}
+    Z = torch.mul(X, Y)
+\end{verbatim}
+  \end{block}
+  \begin{block}{In-place element-wise addition}
+\begin{verbatim}
+    X.mul_(Y) 
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Tensor Division}
+  \begin{block}{Element-wise}
+\begin{verbatim}
+    X = torch.tensor([[1,0], [0,1]]) 
+    Y = torch.tensor([[2,1], [1,2]]) 
+    Z = X / Y 
+\end{verbatim}
+  \end{block}
+  \begin{block}{Alternative element-wise addition}
+\begin{verbatim}
+    Z = torch.div(X, Y)
+\end{verbatim}
+  \end{block}
+  \begin{block}{In-place element-wise addition}
+\begin{verbatim}
+    X.div_(Y) 
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+
+\begin{frame}[fragile]
+  \frametitle{Tensor Mean}
+  \begin{block}{Mean}
+\begin{verbatim}
+X = torch.Tensor([1,2,3,4,5])
+X.mean(dim=0)
+
+X = torch.Tensor([[1,2,3,4,5], [4,5,6,7,8])
+X.mean(dim=1)
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Tensor Standard Deviation}
+  \begin{block}{std}
+\begin{verbatim}
+X = torch.Tensor([1,2,3,4,5])
+X.std(dim=0)
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Torch Arange}
+  \begin{block}{arange}
+\begin{verbatim}
+  X = torch.Tensor(torch.arange(1, 11))
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Vector Addition and Subtraction}
+  \begin{block}{}
+    $u$ = torch.tensor([1.0, 0.0]) \\
+    $v$ = torch.tensor([0.0, 1.0]) \\
+    $z$ = $u$ + $v$ \\
+    $z$ : tensor([1., 1.])
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Tensor Multiplication with a Scalar}
+  \begin{block}{}
+    $y$ = torch.tensor([1, 2]) \\
+    $z$ = 2 * $y$ \\
+    $z$ : tensor([2, 4])
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Product of two Tensors}
+  \begin{block}{}
+    $u$ = torch.tensor([1, 2]) \\
+    $v$ = torch.tensor([3, 2])\\
+    $z$ = $u$ * $v$ \\
+    $z$ : tensor([3, 4])
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Dot Product of two Tensors}
+  \begin{block}{}
+    $u$ = torch.tensor([1, 2]) \\
+    $v$ = torch.tensor([3, 1])\\
+    $z$ = torch.dot($u$, $v$) \\
+    $z$ : tensor(5)
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Adding Constant to a Tensor}
+  \begin{block}{}
+    $u$ = torch.tensor([1, 2, 3, -1]) \\
+    $z$ = $u$  + 1 \\
+    $z$ : tensor([2, 3, 4, 0])
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Functions}
+  \begin{block}{}
+    $a$ = torch.tensor([1.0, -1, 1, -1]) \\
+    $mean\_a$ = $a$.mean() \\
+    $mean\_a$ : tensor(0.0)
+  \end{block}
+
+  \begin{block}{}
+    $b$ = torch.tensor([1, -2, 3, 4, 5]) \\
+    $max\_b$ = $b$.max() \\
+    $max\_b$ : tensor(5)
+  \end{block}
+
+  \begin{block}{np.pi}
+    $x$ = torch.tensor([0, np.pi/2, np.pi]) \\
+    $y$ = torch.sin(x) \\
+    $y$ : tensor([0.0, 1.0, -0.0])
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \begin{block}{}
+    $x$ = torch.linespace(-2, 2, steps=5) \\
+    $x$ : tensor([-2., -1., 0., 1., 2.]) \\
+  \end{block}
+\end{frame}
+\begin{frame}
+  \frametitle{Plotting Mathematical Functions}
+  \begin{block}{}
+    import matplotlib.pyplot as plt \\
+
+    $x$ = torch.linspace(0, 2*np.pi, 100) \\
+    $y$ = torch.sin($x$) \\
+    plt.plot(x.numpy(), y.numpy()) \\
+    plt.show()
+  \end{block}
+\end{frame}
+
+\begin{frame}{Plotting Mathematical Functions}
+\begin{picture}(0,0)(0,0)
+    \put(30, -100)
+     { \includegraphics[width=.8\textwidth]{sin_x.png}}
+   \end{picture}
+
+\end{frame}
+
+
+\begin{frame}
+\begin{center}
+\Large{Derivatives}
+\end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Derivatives}
+  \begin{block}{}
+    $x$ = torch.tensor(2, requires$\_$grad=True) \\
+    $y = x**2$ \\
+    $y$.backward() \\
+    $x$.grad
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Derivatives}
+  \begin{block}{}
+    $x$ = torch.tensor(2, requires$\_$grad=True) \\
+    $z = x**2+2*x+1$ \\
+    $z$.backward() \\
+    $x$.grad
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Partial Derivatives}
+  \begin{block}{}
+    $u$ = torch.tensor(1, requires$\_$grad=True) \\
+    $v$ = torch.tensor(2, requires$\_$grad=True) \\
+    $f=u*v + u**2$ \\
+    $f$.backward() \\
+    $u$.grad \\
+    $v$.grad
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Cool Hack}
+  \begin{block}{}
+    $x$ = torch.linspace(-10,10,10, requires$\_$grad=True)\\
+    $Y$ = $x**2$ \\
+    $y = $ torch.sum($x**2$) \\
+    $y$.backward()
+  \end{block}
+  \begin{block}{}
+    plt.plot(x.detach().numpy(), Y.detach(), label='function')\\
+plt.plot(x.detach().numpy(), x.grad.detach().numpy(), label='derivative')\\
+plt.legend()
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{ReLU}
+  \begin{block}{}
+    import torch.nn.functional as F\\
+    $x$ = torch.linspace(-3,3,100, requires$\_$grad=True)\\
+    $Y$ = $F.relu(x)$ \\
+    $y = $ torch.sum(F.relu(x))) \\
+    $y$.backward()
+  \end{block}
+  \begin{block}{}
+    plt.plot(x.detach().numpy(), Y.detach(), label='function')\\
+plt.plot(x.detach().numpy(), x.grad.detach().numpy(), label='derivative')\\
+plt.legend()
+  \end{block}
+\end{frame}
+
+\begin{frame}{Roadmap}
+  \begin{enumerate}
+\setbeamertemplate{enumerate items}[circle]
+  \item \Alert{W1: Python, Variables, and Functions}
+  \item W2: Strings and Designing Functions
+  \item W3: Booleans, Import and if Statements
+  \item W4: for Loops and Fancy String Manipulation
+  \end{enumerate}
+  \begin{block}{Lecture 1: Introduction to Python}
+      \begin{itemize}
+  \item What a Program is
+  \item  Installing Python
+  \item Types, Values
+  \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\Large{Dataset}
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Simple Dataset}
+  \begin{block}{}
+\small{
+\begin{verbatim}
+from torch.utils.data import Dataset 
+class toy_set(Dataset):
+  def __init__(self, length=100,transform=None):
+    self.x = 2*torch.ones(length,2) 
+    self.y = torch.ones(length,1)
+    self.len = length
+    self.transform = transform
+  def __getitem__(self, index):
+    sample = self.x[index], self.y[index]
+    if self.transform:
+       sample = self.transform(sample)
+    return sample
+  def __len__(self):
+    return self.len
+\end{verbatim}
+}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Example of Dataset}
+  \begin{block}{}
+\begin{verbatim}
+dataset = toy_set()
+len(data_set)
+dataset[0]
+
+for i in range(3):
+  x, y = dataset[i]
+  print(i, 'x:', x, 'y:', y)
+\end{verbatim}
+  \end{block}
+\begin{table}
+  \begin{tabular}{|c|c|c|c|c|c|c|}
+
+\hline
+%self.x & [2,2] & [2,2]\\
+self.x & [2,2] & [2,2] & [2,2] & $\ldots$ & [2,2] & [2,2] \\
+\hline
+self.y & 1 & 1 & 1 & $\ldots$ & 1 & 1\\
+\hline
+Index & 0 & 1 & 2 & $\ldots$ & 98 & 99 \\
+\hline
+  \end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\Large{Transforms}
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Transforms}
+  \begin{block}{}
+\begin{verbatim}
+class add_mult(object):
+  def __init__(self, addx=1, muly=1):
+    self.addx = addx
+    self.muly = muly
+
+  def __call__(self, sample):
+    x,y = sample[0], sample[1]
+    x += self.addx
+    y *= self.muly
+    sample = x,y
+    return sample
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Example of Transforms}
+  \begin{block}{}
+\begin{verbatim}
+dataset = toy_set()
+a_m = add_mult()
+x_, y_ = a_m(dataset[0])
+dataset[0]
+
+dataset_ = toy_set(transform=a_m)
+dataset_[0]
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\Large{Transforms Compose}
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Transforms Compose}
+  \begin{block}{}
+\begin{verbatim}
+class mult(object):
+  def __init__(self, mul=100):
+    self.mul = mul
+
+  def __call__(self, sample):
+    x,y = sample[0], sample[1]
+    x *= self.mul
+    y *= self.mul
+    sample = x,y
+    return sample
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Example of Transforms Compose}
+  \begin{block}{}
+\begin{verbatim}
+from torchvision import transforms
+
+data_transform = transforms.Compose(
+                  [add_mult(), mult()])
+
+data_set_tr = toy_set(
+                  transform=data_transform)
+dataset_set_tr[0]
+\end{verbatim}
+  \end{block}
+\end{frame}
+\end{document}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
