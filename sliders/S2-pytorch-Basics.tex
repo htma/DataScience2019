@@ -59,7 +59,6 @@
   \item Matrics
   \item Tensors
   \item Derivatives
-  \item Datasets 
 \end{itemize}
 \end{frame}
 
@@ -340,6 +339,17 @@ $c$ : tensor([2, 6, 7, 8])
 \end{frame}
 
 \begin{frame}[fragile]
+  \frametitle{Adding Constant to a Tensor}
+  \begin{block}{}
+\begin{verbatim}
+    u = torch.tensor([1, 2, 3, -1]) 
+    z = u  + 1 
+    z : tensor([2, 3, 4, 0])
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
   \frametitle{Tensor Subtraction}
   \begin{block}{Element-wise}
 \begin{verbatim}
@@ -361,7 +371,7 @@ $c$ : tensor([2, 6, 7, 8])
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{Tensor Multration}
+  \frametitle{Tensor Multiplication}
   \begin{block}{Element-wise}
 \begin{verbatim}
     X = torch.tensor([[1,0], [0,1]]) 
@@ -380,6 +390,30 @@ $c$ : tensor([2, 6, 7, 8])
 \end{verbatim}
   \end{block}
 \end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Tensor Multiplication with a Scalar}
+  \begin{block}{}
+\begin{verbatim}
+    y = torch.tensor([1, 2]) 
+    z = 2 * y
+    z : tensor([2, 4])
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Dot Product of two Tensors}
+  \begin{block}{}
+\begin{verbatim}
+    u = torch.tensor([1, 2]) 
+    v = torch.tensor([3, 1])
+    z = torch.dot(u, v) 
+    z : tensor(5)
+\end{verbatim}
+  \end{block}
+\end{frame}
+
 
 \begin{frame}[fragile]
   \frametitle{Tensor Division}
@@ -436,90 +470,42 @@ X.std(dim=0)
 \end{frame}
 
 
-\begin{frame}
-  \frametitle{Vector Addition and Subtraction}
-  \begin{block}{}
-    $u$ = torch.tensor([1.0, 0.0]) \\
-    $v$ = torch.tensor([0.0, 1.0]) \\
-    $z$ = $u$ + $v$ \\
-    $z$ : tensor([1., 1.])
+\begin{frame}[fragile]
+  \frametitle{Other Functions}
+  \begin{block}{max}
+\begin{verbatim}
+    b = torch.tensor([1, -2, 3, 4, 5]) 
+    max_b = b.max() 
+    max_b : tensor(5)
+\end{verbatim}
+  \end{block}
+
+  \begin{block}{linspace}
+\begin{verbatim}
+    x = torch.linspace(-2, 2, steps=5) 
+    x : tensor([-2., -1., 0., 1., 2.]) 
+\end{verbatim}
   \end{block}
 \end{frame}
-
-\begin{frame}
-  \frametitle{Tensor Multiplication with a Scalar}
-  \begin{block}{}
-    $y$ = torch.tensor([1, 2]) \\
-    $z$ = 2 * $y$ \\
-    $z$ : tensor([2, 4])
-  \end{block}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Product of two Tensors}
-  \begin{block}{}
-    $u$ = torch.tensor([1, 2]) \\
-    $v$ = torch.tensor([3, 2])\\
-    $z$ = $u$ * $v$ \\
-    $z$ : tensor([3, 4])
-  \end{block}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Dot Product of two Tensors}
-  \begin{block}{}
-    $u$ = torch.tensor([1, 2]) \\
-    $v$ = torch.tensor([3, 1])\\
-    $z$ = torch.dot($u$, $v$) \\
-    $z$ : tensor(5)
-  \end{block}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Adding Constant to a Tensor}
-  \begin{block}{}
-    $u$ = torch.tensor([1, 2, 3, -1]) \\
-    $z$ = $u$  + 1 \\
-    $z$ : tensor([2, 3, 4, 0])
-  \end{block}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Functions}
-  \begin{block}{}
-    $a$ = torch.tensor([1.0, -1, 1, -1]) \\
-    $mean\_a$ = $a$.mean() \\
-    $mean\_a$ : tensor(0.0)
-  \end{block}
-
-  \begin{block}{}
-    $b$ = torch.tensor([1, -2, 3, 4, 5]) \\
-    $max\_b$ = $b$.max() \\
-    $max\_b$ : tensor(5)
-  \end{block}
-
-  \begin{block}{np.pi}
-    $x$ = torch.tensor([0, np.pi/2, np.pi]) \\
-    $y$ = torch.sin(x) \\
-    $y$ : tensor([0.0, 1.0, -0.0])
-  \end{block}
-\end{frame}
-
-\begin{frame}
-  \begin{block}{}
-    $x$ = torch.linespace(-2, 2, steps=5) \\
-    $x$ : tensor([-2., -1., 0., 1., 2.]) \\
-  \end{block}
-\end{frame}
-\begin{frame}
+\begin{frame}[fragile]
   \frametitle{Plotting Mathematical Functions}
-  \begin{block}{}
-    import matplotlib.pyplot as plt \\
+  \begin{block}{np.pi}
+\begin{verbatim}
+    x = torch.tensor([0, np.pi/2, np.pi]) 
+    y = torch.sin(x) 
+    y : tensor([0.0, 1.0, -0.0])
+\end{verbatim}
+  \end{block}
 
-    $x$ = torch.linspace(0, 2*np.pi, 100) \\
-    $y$ = torch.sin($x$) \\
-    plt.plot(x.numpy(), y.numpy()) \\
+  \begin{block}{plot}
+\begin{verbatim}
+    import matplotlib.pyplot as plt 
+
+    x = torch.linspace(0, 2*np.pi, 100) 
+    y = torch.sin(x) 
+    plt.plot(x.numpy(), y.numpy()) 
     plt.show()
+\end{verbatim}
   \end{block}
 \end{frame}
 
@@ -528,78 +514,200 @@ X.std(dim=0)
     \put(30, -100)
      { \includegraphics[width=.8\textwidth]{sin_x.png}}
    \end{picture}
-
 \end{frame}
-
 
 \begin{frame}
 \begin{center}
-\Large{Derivatives}
+\Large{Gradients with PyTorch}
 \end{center}
 \end{frame}
 
-\begin{frame}
-  \frametitle{Derivatives}
+\begin{frame}[fragile]
+  \frametitle{Creating Tensors with Gradients}
+  \begin{block}{Method 1}
+\begin{verbatim}
+import torch
+a = torch.ones((2, 2), requires_grad=True)
+
+a.requires_grad: True
+\end{verbatim}
+  \end{block}
+  \begin{block}{Method 2}
+\begin{verbatim}
+a = torch.ones((2, 2))
+a.requires_grad_()
+
+a.requires_grad: True
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Creating Tensors without Gradients}
   \begin{block}{}
-    $x$ = torch.tensor(2, requires$\_$grad=True) \\
-    $y = x**2$ \\
-    $y$.backward() \\
-    $x$.grad
+\begin{verbatim}
+import torch
+no_gradient = torch.ones((2, 2))
+
+no_gradient.requires_grad: False
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Tensors with Gradient Operations}
+  \begin{block}{Addition and Multiplication}
+\begin{verbatim}
+import torch
+a = torch.ones((2, 2), requires_grad=True)
+b = torch.ones((2, 2), requires_grad=True)
+
+print(a + b)
+print(torch.add(a, b))
+
+print(a * b)
+print(torch.mul(a, b))
+\end{verbatim}
   \end{block}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Derivatives}
-  \begin{block}{}
-    $x$ = torch.tensor(2, requires$\_$grad=True) \\
-    $z = x**2+2*x+1$ \\
-    $z$.backward() \\
-    $x$.grad
-  \end{block}
+  \begin{center}
+    \Large{Manually and Automatically Calculating Gradients}
+  \end{center}
 \end{frame}
 
 \begin{frame}
+  \frametitle{What exactly is $requires\_grad$?}
+  \begin{itemize}
+  \item If you set torch tensor's attribute \emph{requires\_grad} as True,
+    it starts to track all operations on it.
+  \item when you finish your computation you can call \emph{.backward()}
+    and have all the gradients computed automatically.
+  \item the gradient for this tensor will be accumulated into \emph{.grad} attribute.
+  \end{itemize}
+\end{frame}
+
+  \begin{frame}[fragile]{An Example of Linear Equation}
+  \begin{displaymath}
+    \begin{array}{lll}
+          y_i & = &  5(x_i + 1)^2 , \\ 
+          z & = & \frac{1}{2}\sum_i y_i
+    \end{array}
+  \end{displaymath}
+    \begin{block}{PyTorch Code}
+\begin{verbatim}
+  x = torch.ones(2, requires_grad=True)
+  y = 5 * (x + 1) ** 2
+  z = (1/2) * torch.sum(y)
+\end{verbatim}
+    \end{block}
+  \end{frame}
+
+  \begin{frame}[fragile]
+    \frametitle{Calculate Derivatives}
+    \begin{block}{Torch backward()}
+\begin{verbatim}
+  z.backward()
+  x.grad
+
+  print(x.requires_grad)
+  print(y.requires_grad)
+  print(z.requires_grad)
+\end{verbatim}
+    \end{block}
+  \end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{More Examples }
+  \begin{block}{One tensor}
+\begin{verbatim}
+  x = torch.tensor(2, requires_grad=True) 
+  z = x**2+2*x+1 
+  z.backward() 
+  x.grad:
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
   \frametitle{Partial Derivatives}
-  \begin{block}{}
-    $u$ = torch.tensor(1, requires$\_$grad=True) \\
-    $v$ = torch.tensor(2, requires$\_$grad=True) \\
-    $f=u*v + u**2$ \\
-    $f$.backward() \\
-    $u$.grad \\
-    $v$.grad
+  \begin{block}{Two tensors}
+\begin{verbatim}
+  u = torch.tensor(1, requires_grad=True) 
+  v = torch.tensor(2, requires_grad=True) 
+  f = u*v + u**2
+  f.backward() 
+  u.grad:  
+  v.grad:
+\end{verbatim} 
   \end{block}
 \end{frame}
 
-\begin{frame}
+\begin{frame}[fragile]
+  \frametitle{Accumulate Gradients}
+  \begin{block}{One tensor}
+\begin{verbatim}
+  x = torch.ones(1, requres_grad=True)
+  y = x ** 2
+  z = x ** 3
+
+  y.backward()
+  x.grad
+
+  z.backward()
+  x.grad
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+\footnotesize{
   \frametitle{Cool Hack}
-  \begin{block}{}
-    $x$ = torch.linspace(-10,10,10, requires$\_$grad=True)\\
-    $Y$ = $x**2$ \\
-    $y = $ torch.sum($x**2$) \\
-    $y$.backward()
+  \begin{block}{Calculate derivates}
+\begin{verbatim}
+  x = torch.linspace(-10,10,10, requires_grad=True)
+  y = x**2 
+  z = torch.sum(y)
+  z.backward()
+\end{verbatim}
   \end{block}
-  \begin{block}{}
-    plt.plot(x.detach().numpy(), Y.detach(), label='function')\\
-plt.plot(x.detach().numpy(), x.grad.detach().numpy(), label='derivative')\\
+  \begin{block}{Plotting derivates}
+\begin{verbatim}
+plt.plot(x.detach().numpy(), y.detach().numpy(),
+                                     label='function')
+plt.plot(x.detach().numpy(), x.grad.detach().numpy(), 
+                                   label='derivative')
 plt.legend()
+plt.show()
+\end{verbatim}
   \end{block}
+}
 \end{frame}
 
 \begin{frame}
-  \frametitle{ReLU}
-  \begin{block}{}
-    import torch.nn.functional as F\\
-    $x$ = torch.linspace(-3,3,100, requires$\_$grad=True)\\
-    $Y$ = $F.relu(x)$ \\
-    $y = $ torch.sum(F.relu(x))) \\
-    $y$.backward()
-  \end{block}
-  \begin{block}{}
-    plt.plot(x.detach().numpy(), Y.detach(), label='function')\\
-plt.plot(x.detach().numpy(), x.grad.detach().numpy(), label='derivative')\\
-plt.legend()
-  \end{block}
+    \frametitle{Cool Hack Ploting}
+    \begin{figure}
+      \centering
+      \includegraphics[width=.9\textwidth]{cool_hack.png}
+    \end{figure}
 \end{frame}
+
+% \begin{frame}
+%   \frametitle{ReLU}
+%   \begin{block}{}
+%     import torch.nn.functional as F\\
+%     $x$ = torch.linspace(-3,3,100, requires$\_$grad=True)\\
+%     $Y$ = $F.relu(x)$ \\
+%     $y = $ torch.sum(F.relu(x))) \\
+%     $y$.backward()
+%   \end{block}
+%   \begin{block}{}
+%     plt.plot(x.detach().numpy(), Y.detach(), label='function')\\
+% plt.plot(x.detach().numpy(), x.grad.detach().numpy(), label='derivative')\\
+% plt.legend()
+%   \end{block}
+% \end{frame}
 
 \begin{frame}{Roadmap}
   \begin{enumerate}
@@ -618,143 +726,6 @@ plt.legend()
   \end{block}
 \end{frame}
 
-\begin{frame}
-\begin{center}
-\Large{Dataset}
-\end{center}
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{Simple Dataset}
-  \begin{block}{}
-\small{
-\begin{verbatim}
-from torch.utils.data import Dataset 
-class toy_set(Dataset):
-  def __init__(self, length=100,transform=None):
-    self.x = 2*torch.ones(length,2) 
-    self.y = torch.ones(length,1)
-    self.len = length
-    self.transform = transform
-  def __getitem__(self, index):
-    sample = self.x[index], self.y[index]
-    if self.transform:
-       sample = self.transform(sample)
-    return sample
-  def __len__(self):
-    return self.len
-\end{verbatim}
-}
-  \end{block}
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{Example of Dataset}
-  \begin{block}{}
-\begin{verbatim}
-dataset = toy_set()
-len(data_set)
-dataset[0]
-
-for i in range(3):
-  x, y = dataset[i]
-  print(i, 'x:', x, 'y:', y)
-\end{verbatim}
-  \end{block}
-\begin{table}
-  \begin{tabular}{|c|c|c|c|c|c|c|}
-
-\hline
-%self.x & [2,2] & [2,2]\\
-self.x & [2,2] & [2,2] & [2,2] & $\ldots$ & [2,2] & [2,2] \\
-\hline
-self.y & 1 & 1 & 1 & $\ldots$ & 1 & 1\\
-\hline
-Index & 0 & 1 & 2 & $\ldots$ & 98 & 99 \\
-\hline
-  \end{tabular}
-\end{table}
-\end{frame}
-
-\begin{frame}
-\begin{center}
-\Large{Transforms}
-\end{center}
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{Transforms}
-  \begin{block}{}
-\begin{verbatim}
-class add_mult(object):
-  def __init__(self, addx=1, muly=1):
-    self.addx = addx
-    self.muly = muly
-
-  def __call__(self, sample):
-    x,y = sample[0], sample[1]
-    x += self.addx
-    y *= self.muly
-    sample = x,y
-    return sample
-\end{verbatim}
-  \end{block}
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{Example of Transforms}
-  \begin{block}{}
-\begin{verbatim}
-dataset = toy_set()
-a_m = add_mult()
-x_, y_ = a_m(dataset[0])
-dataset[0]
-
-dataset_ = toy_set(transform=a_m)
-dataset_[0]
-\end{verbatim}
-  \end{block}
-\end{frame}
-
-\begin{frame}
-\begin{center}
-\Large{Transforms Compose}
-\end{center}
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{Transforms Compose}
-  \begin{block}{}
-\begin{verbatim}
-class mult(object):
-  def __init__(self, mul=100):
-    self.mul = mul
-
-  def __call__(self, sample):
-    x,y = sample[0], sample[1]
-    x *= self.mul
-    y *= self.mul
-    sample = x,y
-    return sample
-\end{verbatim}
-  \end{block}
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{Example of Transforms Compose}
-  \begin{block}{}
-\begin{verbatim}
-from torchvision import transforms
-
-data_transform = transforms.Compose(
-                  [add_mult(), mult()])
-
-data_set_tr = toy_set(
-                  transform=data_transform)
-dataset_set_tr[0]
-\end{verbatim}
-  \end{block}
-\end{frame}
 \end{document}
 %%% Local Variables:
 %%% mode: latex
