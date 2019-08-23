@@ -1,0 +1,482 @@
+% Python Programming S3: Linear Regression 
+% created on Jul 29, 2019
+
+\documentclass[14 pt]{beamer}
+\usetheme[
+	bullet=circle,		% Other option: square
+	bigpagenumber,		% circled page number on lower right
+	topline=true,			% colored bar at the top of the frame 
+	shadow=false,			% Shading for beamer blocks
+	]{Flip}
+
+\definecolor{UBCblue}{rgb}{0.04706, 0.13725, 0.26667} % UBC Blue (primary)
+\usecolortheme[named=UBCblue]{structure}
+\setbeamertemplate{frametitle}{\color{UBCblue}\bfseries\insertframetitle\par\vskip-6pt\hrulefill}
+
+%\usecolortheme[named=Mahogany]{structure} % Sample dvipsnames color
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+
+\graphicspath{{images/}}	% Put all images in this directory. Avoids clutter.
+
+\usetikzlibrary{backgrounds}
+\usetikzlibrary{mindmap,trees}	% For mind map
+
+% increase space between items
+\let\olditem\item
+\renewcommand{\item}{\olditem\vspace{4pt}}
+
+\newcommand{\comment}[1]{\textcolor{comment}{\footnotesize{#1}\normalsize}} % comment mild
+\newcommand{\Comment}[1]{\textcolor{Comment}{\footnotesize{#1}\normalsize}} % comment bold
+\newcommand{\COMMENT}[1]{\textcolor{COMMENT}{\footnotesize{#1}\normalsize}} % comment crazy bold
+\newcommand{\Alert}[1]{\textcolor{Alert}{#1}} % louder alert
+\newcommand{\ALERT}[1]{\textcolor{ALERT}{#1}} % loudest alert
+
+\tikzstyle{every picture}+=[remember picture]
+
+\author[mht]{CS}
+\title[Deep Learning with PyTorch]{Deep Learning with PyTorch}
+\institute{Northeastern University at Qinhuangdao}
+
+\begin{document}
+\begin{frame}[c]
+\begin{center}
+	\textcolor{normal text.fg!50!Comment}{\textbf{\Large{Deep Learning with PyTorch}}}
+	\vspace{4em}
+
+    \COMMENT{\large{Lecture 3: Linear Regression}} \\
+\vspace{4em}
+    \Comment{{Ma Haitao}} \\
+\comment{\textit{Northeastern University at Qinhuangdao}}\\
+\end{center}
+\end{frame}
+
+\begin{frame}{Outline}
+  \begin{itemize}
+  \item Overview Linear Reguression 
+  \item Problem: Prediction
+  \item Pytorch
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Linear Regression}
+
+  \begin{itemize}
+  \item Allows us to understand relationship between two continuous variables
+  \item The predictor (independent) variable - $x$
+  \item The target (dependent) variable - $y$
+  \end{itemize}
+  \begin{equation}
+    y = \alpha x + \beta
+  \end{equation}
+  \begin{itemize}
+  \item $\alpha$: the slope
+  \item $\beta$: bias
+  \end{itemize}
+\end{frame}
+\begin{frame}
+  \frametitle{Example of  Linear Regression}
+\begin{picture}(0,0)(0,0)
+    \put(-55, -120)
+     { \includegraphics[width=1.3\textwidth]{simple_linear_regression.eps}}
+   \end{picture}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Aim of Linear Regression}
+   Minimize the distance between the points and the line
+    \begin{displaymath}
+      y = \alpha x + \beta
+    \end{displaymath}
+   Adjusting
+   \begin{itemize}
+   \item Coefficient: $\alpha$ 
+   \item  Bias/intercept: $\beta$
+  \end{itemize}
+  \begin{block}{An example equation}
+  \begin{displaymath}
+    y = 2x + 1
+  \end{displaymath}
+\end{block}
+\end{frame}
+
+\begin{frame}
+      \frametitle{Building a Linear Regression Model }
+     \setbeamertemplate{enumerate items}[circle]
+      \begin{enumerate}
+      \item Build a Toy Dataset
+      \item Build Model
+      \item Instantiate Loss and Optimizer
+      \item Train Model
+      \item Plot predicted and Actual Values
+      \item Save Model
+      \end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{1. Build a Toy Dataset}
+    \begin{block}{Create data}
+\begin{verbatim}
+  x_train = torch.tensor(torch.arange(11), 
+                      dtype=torch.float32)
+  x_train = x_train.reshape(-1, 1)
+
+  y_train = 2*x + 1
+\end{verbatim}
+    \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{2. Build Model}
+  
+\end{frame}
+
+\begin{frame}{Simple Liear Regression}
+  \begin{equation}
+    \hat{y} = b + wx
+  \end{equation}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{block}{}
+\begin{verbatim}
+import torch
+
+w = torch.tensor(2.0, requires_grad=True)
+b = torch.tensor(-1.0, requires_grad=True)
+
+def forward(x): 
+  y = w*x + b
+  return y
+
+x = torch.tensor([[1.0]])
+x = torch.tensor([[1.0],[2.0]])
+yhat = forward(x)
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+% Class Linear 
+\begin{frame}[fragile]
+  \begin{block}{}
+\begin{verbatim}
+from torch.nn import Linear
+
+torch.manual_seed(1)
+model = Linear(in_feature=1, out_feature=1)
+print(list(model.parameters()))
+
+x = torch.tensor([[0]])
+yhat = model(x)
+x = torch.tensor([[1.0],[2.0]])
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+% custom Modules
+\begin{frame}[fragile]
+  \begin{block}{}
+\begin{verbatim}
+import torch.nn as nn
+class LR(nn.Module):
+  def __init__(self, D_in, D_out):
+    super(LR, self).__init__()
+    self.linear=nn.Linear(D_in, D_out)
+  def forward(self, x):
+    out = self.linear(x)
+    return out
+
+model = LR(1, 1)
+print(list(model.parameters()))
+x = torch.tensor([[1.0]])
+yhat = model(x)
+x = torch.tensor([[1.0], [2.0]])
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\Large{Linear Regression Training}
+\end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Simple Dataset}
+  \begin{equation*}
+    D = \{(x_1, y_1, (x_2, y_2), \ldots, (x_N, y_N)\}
+  \end{equation*}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Simple Linear Regression}
+  \begin{equation*}
+    f(x) = 1-3x
+  \end{equation*}
+  \begin{displaymath}
+    \mathbf{X} = 
+    \left[ \begin{array}{c}
+             -2 \\  0 \\  3 
+           \end{array} \right]
+         \end{displaymath}
+  \begin{displaymath}
+    \mathbf{Y} = f(\mathbf{X}) + Noise = 
+    \left[ \begin{array}{c}
+             7 \\ 1 \\  -8 
+           \end{array} \right] + 
+         \left[ \begin{array}{c}
+                  0.1 \\ 0 \\ -0.1
+                \end{array} \right] 
+              = \left[ \begin{array}{c}
+                         7.1 \\ 1 \\ -8.1
+                       \end{array} \right]              \end{displaymath}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\Large{Loss Function}
+\end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Simple Linear Regression}
+  \begin{itemize}
+  \item How do we determine the parameters
+  \begin{equation*}
+    \hat{y} = b + wx
+  \end{equation*}
+\item one point example: $(-2, 4)$
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Loss Function}
+  \begin{itemize}
+  \item In order to find the parameter we need to find how good our model
+    is
+  \item Loss: A quantity that is zero when our model provides a good
+    estimate and large when our model estimate is bad.
+  \item Loss Function:
+  \begin{equation*}
+    loss(w) = (y-\hat{y})^2 = (y_1 - wx_1)^2
+  \end{equation*}
+\item The goal is to determine the parameter that minimizes this function.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{fragile}
+  \frametitle{Example of One Point}
+  \begin{displaymath}
+\begin{array}{lll}
+\mathbf{Dataset} & : &  (4, -2) \\
+   \mathbf{Score Function} & : &  \ \hat{y}  =   w*x,  \\
+\mathbf{Loss Function} & : &  \ L(w)  =  (y - w*x)^2 
+\end{array}
+\end{displaymath}
+\begin{table}
+  \begin{tabular}{|c|c|}
+\hline
+$w$ & $L(w)$ \\
+\hline
+5 & 484 \\
+\hline
+1 & 36 \\
+\hline
+-1 & 4 \\
+\hline
+-5 & 324 \\
+\hline
+  \end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Derivative}
+  \begin{equation*}
+    L(w)=(-2-w*4)^2
+  \end{equation*}
+  \begin{displaymath}
+\begin{array}{lll}
+    \frac{\partial L(w)}{\partial w} & = & 2*(-2 - w*4) \\
+    & =  & -4-w*8 \\ 
+  & = & 0 \\
+  w & = & -\frac{1}{2}\\
+  \end{array}
+\end{displaymath}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Gradient Descent}
+  \begin{itemize}
+  \item A method to find the minimum of a function.
+  \item We want to find the value of the parameter that minimize the loss function.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Gradient Descent Iterations}
+    \begin{itemize}
+    \item We start off with an initial guess and for the first iteration we
+      simply add a value proportional to the derivative.
+    \item We update the parameter value and we repeat for the second
+      iteration.
+    \item And we continue to the $k$-th iteration.
+    \end{itemize}
+  \end{frame}
+  \begin{frame}
+\begin{displaymath}
+    \begin{array}{{lll}}
+      w^0  & =  & Guess \\
+      w^1 & = & w^0 - \eta \frac{\partial L(w^0)}{\partial w} \\
+      w^2 & = & w^1 - \eta \frac{\partial L(w^1)}{\partial w} \\      
+&  & \vdots  \\
+w^{k+1} & = & w^k - \eta \frac{\partial L(w^k)}{\partial w} \\
+    \end{array}
+  \end{displaymath}
+The parameter $\eta$ is known as learning rate, usually selected empirically.
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\Large{Cost Function: Mean Square Error}
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Mean Square Error}
+  \begin{itemize}
+  \item We obtain the parameters by minimizing the value for multiple points.
+  \end{itemize}
+  \begin{displaymath}
+\begin{array}{lll}
+\mathbf{Dataset}  : & &  \{(x_1,y_1), \ldots, (x_N, y_N)\} \\
+   \mathbf{Score Function}  :   \ \hat{y}  & = &  w*x + b,  \\
+\mathbf{Cost Function}  :  \ L(w,b)  & = & \frac{1}{N} \sum_{n=1}^{N} (y_n - w*x_n+b)^2 
+\end{array}
+\end{displaymath}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Example of cost Function}
+\textbf{Dataset}:
+  \begin{displaymath}
+ \{(x_1,y_1), (x_2, y_2), (x_3, y_3)\} 
+\end{displaymath}
+\textbf{Cost Function} : 
+\begin{displaymath}
+  \begin{array}{lll}
+ \ L(w,b)  & =  &  \frac{1}{3} \{(y_1 - w*x_1+b)^2 +  (y_2 - w*x_2+b)^2 
+    \\
+& & + (y_3 - w*x_3+b)^2 \}
+  \end{array}
+\end{displaymath}
+\end{frame}
+
+\begin{frame}{fragile}
+  \frametitle{Gradient Descent on Cost Function}
+  \textbf{Cost Function}  : 
+  \begin{displaymath}
+     \ L(w,b)   =  \frac{1}{N} \sum_{n=1}^{N} (y_n - w*x_n+b)^2 
+   \end{displaymath}
+\textbf{Gradient} :
+\begin{displaymath}
+\begin{array}{lll}
+    \frac{\partial L(w)}{\partial w} & = &
+                                           \frac{2}{N}\sum_{n=1}^N(y_n-w*x_n)x_n
+\end{array}  
+\end{displaymath}
+ \end{frame}
+ \begin{frame}[fragile]
+   \frametitle{Batch Gradient Descent}
+  \begin{displaymath}
+     \ L(w,b)   =  \frac{1}{N} \sum_{n=1}^{N} (y_n - w*x_n+b)^2 
+   \end{displaymath}
+   \begin{table}
+     \centering
+     \begin{tabular}{|l|l|l|l|}
+\hline
+       $x_1, y_1$ & $x_2, y_2$ & $\cdots$ & $x_N, y_N$ \\
+\hline
+     \end{tabular}
+   \end{table}
+   \begin{displaymath}
+    (y_1-w*x_1+b)^2+(y_2-w*x_2+b)^2+\cdots (y_N-w*x_N+b)^2
+   \end{displaymath}
+ \end{frame}
+
+ \begin{frame}[fragile]
+   \frametitle{Example of Batch Gradient Descent}
+\textbf{Batch\_Size = 3} : 
+  \begin{displaymath}
+     \ L(w,b)   =  \frac{1}{3} \sum_{n=1}^{3} (y_n - w*x_n+b)^2 
+   \end{displaymath}
+   \begin{table}
+     \centering
+     \begin{tabular}{|l|l|l|}
+\hline
+       $x_1=1, y_1=2$ & $x_2=3, y_2=6$ & $x_3=2, y_3=4$ \\
+\hline
+     \end{tabular}
+   \end{table}
+   \begin{displaymath}
+    L(w,b)= (2-w*1+b)^2+(6-w*3+b)^2+(4-w*2+b)^2
+   \end{displaymath}
+ \end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Data Set}
+  \begin{block}{}
+\begin{verbatim}
+w = torch.tensor(-10.0, requires_grad=True)
+X = torch.arange(-3,3,0.1).view(-1,1)
+f = -3*x
+plt.plot(X.numpy(), f.numpy())
+plot.show()
+
+Y = f + 0.1*torch.randn(X.size())
+
+plt.plot(X.numpy(), f.numpy())
+plt.plot(X.numpy(), Y.numpy(), 'ro')
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Model Definition}
+  \begin{block}{}
+\begin{verbatim}
+def forward(x):
+    y = w * x
+    return y
+
+def criterion(yhat, y):
+    return torch.mean((yhat-y) ** 2)
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Training Process}
+  \begin{block}{}
+\begin{verbatim}
+lr = 0.1
+total_loss = []
+for epoch in range(4):
+    yhat = forward(X)
+    loss = criterion(yhat, y)
+    loss.backward()
+
+    w.data = w.data - lr*w.grad.data
+    w.grad.data.zero_()
+    total_loss.append(loss)
+\end{verbatim}
+  \end{block}
+\end{frame}
+\end{document}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
