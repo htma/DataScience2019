@@ -1,0 +1,190 @@
+% Python Programming S4: Logistic Regression 
+% created on Aug 25, 2019
+
+\documentclass[14 pt]{beamer}
+\usetheme[
+	bullet=circle,		% Other option: square
+	bigpagenumber,		% circled page number on lower right
+	topline=true,			% colored bar at the top of the frame 
+	shadow=false,			% Shading for beamer blocks
+	]{Flip}
+
+\definecolor{UBCblue}{rgb}{0.04706, 0.13725, 0.26667} % UBC Blue (primary)
+\usecolortheme[named=UBCblue]{structure}
+\setbeamertemplate{frametitle}{\color{UBCblue}\bfseries\insertframetitle\par\vskip-6pt\hrulefill}
+
+%\usecolortheme[named=Mahogany]{structure} % Sample dvipsnames color
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+
+\graphicspath{{images/}}	% Put all images in this directory. Avoids clutter.
+
+\usetikzlibrary{backgrounds}
+\usetikzlibrary{mindmap,trees}	% For mind map
+
+% increase space between items
+\let\olditem\item
+\renewcommand{\item}{\olditem\vspace{4pt}}
+
+\newcommand{\comment}[1]{\textcolor{comment}{\footnotesize{#1}\normalsize}} % comment mild
+\newcommand{\Comment}[1]{\textcolor{Comment}{\footnotesize{#1}\normalsize}} % comment bold
+\newcommand{\COMMENT}[1]{\textcolor{COMMENT}{\footnotesize{#1}\normalsize}} % comment crazy bold
+\newcommand{\Alert}[1]{\textcolor{Alert}{#1}} % louder alert
+\newcommand{\ALERT}[1]{\textcolor{ALERT}{#1}} % loudest alert
+
+\tikzstyle{every picture}+=[remember picture]
+
+\author[mht]{CS}
+\title[Deep Learning with PyTorch]{Deep Learning with PyTorch}
+\institute{Northeastern University at Qinhuangdao}
+
+\begin{document}
+\begin{frame}[c]
+\begin{center}
+	\textcolor{normal text.fg!50!Comment}{\textbf{\Large{Deep Learning with PyTorch}}}
+	\vspace{4em}
+
+    \COMMENT{\large{Lecture 4: Logistic Regression}} \\
+\vspace{4em}
+    \Comment{{Ma Haitao}} \\
+\comment{\textit{Northeastern University at Qinhuangdao}}\\
+\end{center}
+\end{frame}
+
+\begin{frame}{Outline}
+  \begin{itemize}
+  \item Overview Logistic Reguression 
+  \item Problem: Prediction
+  \item Pytorch Implementation
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Logistic Regression}
+   Classification algorithm
+  \begin{itemize}
+  \item Example: Spam vs No Spam
+    \begin{itemize}
+    \item  Input: Bunch of words
+    \item Output: Probability spam or not
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{ vs. Linear Regression}
+   Linear regression:
+  \begin{itemize}
+  \item Output: numeric value given inputs
+  \end{itemize}
+  Logistic regression:
+  \begin{itemize}
+  \item Output: probability $[0, 1]$ given input belonging to a class
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \begin{center}
+      \Large{Logistic Functions}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Logistic Function $\sigma()$}
+  Two-class logistic regression
+  \begin{displaymath}
+    \mathbf{y} = A\mathbf{x} + b
+  \end{displaymath}
+  \begin{itemize}
+  \item Where $\mathbf{y}$ is a vector comprising the 2-class prediction $y_0$ and
+    $y_1$
+  \item Where the labels are $y_0 = 0$ and $y_1 = 1$
+  \item $\sigma(y_1)=\frac{1}{1-e^{y_1}}$ : Estimated probability that $y = 1$
+    
+  \item $\sigma(y_0) = 1 - \sigma(y_1)$: Estimated probability that $y = 0$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Softmax Function $\sigma()$}
+  Multi-class logistic regression
+  \begin{displaymath}
+    \mathbf{y} = A\mathbf{x} + b
+  \end{displaymath}
+  \begin{itemize}
+  \item Where $\mathbf{y}$ is a vector comprising the 4-class $K = 4$ prediction
+    $y_0$, $y_1$, $y_2$  and $y_3$
+    $y_1$
+  \item Where the 4 labels are $y_0 = 0$ , $y_1 = 1$, $y_2 = 2$ and $y_3 =
+    3$
+  \item $\sigma(y_i) = \frac{e^{y_i}}{\sum_i^K e^{y_i}}$, where $K=4$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Softmax Example: $K=4$}
+  \begin{displaymath}
+    \sigma(y_i) = \frac{e^{y_i}}{\sum_i^K e^{y_i}}
+  \end{displaymath}
+  \begin{itemize}
+  \item $y_0 = 1.3$, $y_1 = 1.2$, $y_2 = 4.5$, $y_3 = 4.8$
+  \item $\sigma(y_0) = \frac{e^{1.3}}{e^{1.3}+e^{1.2}+e^{4.5}+e^{4.8}} = 0.017$
+  \item $\sigma(y_1) = \frac{e^{1.2}}{e^{1.3}+e^{1.2}+e^{4.5}+e^{4.8}} = 0.015$
+  \item $\sigma(y_2) = \frac{e^{4.5}}{e^{1.3}+e^{1.2}+e^{4.5}+e^{4.8}} = 0.412$
+  \item $\sigma(y_3) = \frac{e^{4.8}}{e^{1.3}+e^{1.2}+e^{4.5}+e^{4.8}} = 0.556$
+  \item $\sigma(y_0)+\sigma(y_1)+\sigma(y_2)+\sigma(y_3) = 1$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Cross Entropy Function D() for 2 Class}
+  \begin{itemize}
+  \item $S$  is our softmax outputs and $L$ are our labels
+  \item $D(S, L) = -(L\log S + (1 - L)\log (1 - S))$
+    \begin{itemize}
+    \item If $L = 0$ : $D(S, 0)  = -\log(1 - S)$
+      \begin{itemize}
+      \item $-\log (1 - S)$: less positive if $S \to 0$
+      \item $-\log (1 - S)$: more positive if $S \to 1$
+      \end{itemize}
+    \item If $L = 1$: $D(S, 1) = -\log S$
+      \begin{itemize}
+      \item $-\log S$: less positive if $S\to 1$
+      \item $-\log S$: more positive if $S\to 0$
+      \end{itemize}
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Cross Entropy Function D() for More Than 2 Class}
+  \begin{displaymath}
+    D(S, L) = -\sum_1^K L_i \log (S_i)
+  \end{displaymath}
+  \begin{itemize}
+  \item $K$: number of classes
+  \item $L_i$: label of $i$-th class, 1 if that's the class else 0
+  \item $S_i$: output of softmax for $i$-th class
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Cross Entropy Loss over $N$ samples}
+  \begin{itemize}
+  \item Goal: Minimizing Cross Entropy Loss, $L$
+  \item $Loss = \frac{1}{N}\sum_j^N D_j$
+    \begin{itemize}
+    \item $D_j$: $j$-th sample of cross entropy function $D(S, L)$
+    \item $N$: number of samples
+    \item $Loss$: average cross entropy loss over $N$ samples
+    \end{itemize}
+  \end{itemize}
+  
+\end{frame}
+\end{document}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
