@@ -181,7 +181,209 @@
     \item $Loss$: average cross entropy loss over $N$ samples
     \end{itemize}
   \end{itemize}
-  
+\end{frame}
+
+\begin{frame}
+  \begin{center}
+    \Large{Building a Logistic Regression Model}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{A Logistic Regression Model}
+  \begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{lr-model.png}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Steps}
+     \setbeamertemplate{enumerate items}[circle]
+  \begin{enumerate}
+  \item Load Dataset
+  \item Create Model Class
+  \item Instantiate Model 
+  \item Instantiate Loss and Optimizer 
+  \item Train Model
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{1a: Loading MNIST Train Dataset}
+
+  \begin{block}{}
+\begin{verbatim}
+import torch
+import torch.nn as nn
+import torchvision.transforms as transforms
+import torchvision.datasets as datasets
+
+train_dataset = datasets.MNIST(
+            root='./data', 
+            train=True, 
+            transform=transforms.ToTensor(),
+            download=True)
+
+print(len(train_dataset))
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Inspecting a Single Image}
+\small{
+  \begin{block}{}
+\begin{verbatim}
+print(train_dataset[0][0].size()) 
+-> torch.Size([1,28,28])
+print(train_dataset[0][1]) 
+-> tensor(5)
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+show_img = train_dataset[0][0].numpy().reshape(28,28)
+plt.imshow(show_img, cmap='gray')
+plt.show()
+\end{verbatim}
+  \end{block}
+}
+\end{frame}
+\begin{frame}
+  \frametitle{Show the Image}
+  \begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{Five.png}
+  \end{figure}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{1b: Loading MNIST Test Dataset}
+  \begin{block}{}
+\begin{verbatim}
+test_dataset = datasets.MNIST(root='./data', 
+           train=False, 
+           transform=transforms.ToTensor())
+
+print(len(test_dataset))
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{2: Make Dataset Iterable}
+  \begin{itemize}
+  \item mini-batch: batch size means the model would look at how many
+    images before updating the model's weights
+  \item iteration: 1 mini-batch forward \& backward pass
+  \item epoch: 1 epoch  running through the whole dataset once
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Defining Epochs}
+\small{
+  \begin{block}{}
+\begin{verbatim}
+batch_size = 100
+n_iters = 3000
+num_epochs = n_iters/(len(train_dataset)/batch_size)
+num_epochs = int(num_epochs)
+print(num_epochs)
+
+train_loader = torch.utils.data.DataLoader(
+               dataset=train_dataset, 
+               batch_size=batch_size, 
+               shuffle=True)
+
+test_loader = torch.utils.data.DataLoader(
+              dataset=test_dataset, 
+              batch_size=batch_size, 
+              shuffle=False)
+\end{verbatim}
+  \end{block}
+}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{3: Building Model}
+\small{
+  \begin{block}{}
+\begin{verbatim}
+class LogisticRegressionModel(nn.Module):
+  def __init__(self, D_in, D_out):
+    super(LogisticRegressionModel, self).__init__()
+    self.linear = nn.Linear(D_in, D_out)
+
+  def forward(self, x):
+    out = self.linear(x)
+    return out
+
+D_in, D_out = 28*28, 10
+model = LogisticRegressionModel(D_in, D_out)
+print(model)
+\end{verbatim}
+  \end{block}
+}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{4: Instantiate Loss and Optimizer}
+  \begin{block}{Instantiate Loss}
+    criterion = nn.CrossEntropyLoss()  
+  \end{block}
+     \setbeamertemplate{enumerate items}[circle]
+  \begin{enumerate}
+  \item Computes softmax (logistic/softmax function) 
+  \item Computes cross entropy
+  \end{enumerate}
+
+  \begin{block}{Instantiate optimizer}
+\small{
+\begin{verbatim}
+learning_rate = 0.001
+optimizer = torch.optim.SGD(model.parameters(), 
+                            lr=learning_rate)  
+\end{verbatim}
+}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Cross Entropy Loss}
+  \begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{cross_entropy.png}
+  \end{figure}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Parameters In-Depth}
+  \begin{block}{}
+\begin{verbatim}
+print(model.parameters())
+
+print(len(list(model.parameters())))
+
+print(list(model.parameters())[0].size())
+-> torch.Size([10, 784])
+print(list(model.parameters())[1].size())
+-> torch.Size([10])
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Train Model}
+  \begin{itemize}
+  \item Convert inputs/labels to tensors with gradients
+  \item Clear gradient buffets
+  \item Get output given inputs
+  \item Get loss
+  \item Get gradients w.r.t. parameters
+  \item Update parameters using gradients
+  \item REPEAT
+  \end{itemize}
 \end{frame}
 \end{document}
 %%% Local Variables:
