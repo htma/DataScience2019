@@ -374,6 +374,15 @@ print(list(model.parameters())[1].size())
 \end{frame}
 
 \begin{frame}
+  \frametitle{Model Parameters}
+\begin{picture}(0,0)(-10,120)
+    \put(0, 0)
+    \centering
+    \includegraphics[width=.9\textwidth]{lr_params.png}
+  \end{picture}
+\end{frame}
+
+\begin{frame}
   \frametitle{Train Model}
   \begin{itemize}
   \item Convert inputs/labels to tensors with gradients
@@ -383,6 +392,146 @@ print(list(model.parameters())[1].size())
   \item Get gradients w.r.t. parameters
   \item Update parameters using gradients
   \item REPEAT
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Training Process}
+\small{
+  \begin{block}{Training$\cdots$}
+\begin{verbatim}
+iter = 0
+for epoch in range(num_epochs):
+  for i, (images,labels) in enumerate(train_loader):
+    images = images.view(-1, 28*28).requires_grad_()
+
+    optimizer.zero_grad()
+    outputs = model(images)
+
+    loss = criterion(outputs, labels)
+    loss.backward()
+    optimizer.step()
+\end{verbatim}
+  \end{block}
+}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Testing}
+\footnotesize{
+  \begin{block}{Calculate Accuracy}
+\begin{verbatim}
+  iter += 1
+  if iter % 500 == 0:
+     correct, total = 0, 0
+     for images, labels in test_loader:
+       images = images.view(-1, 28*28).requires_grad_()
+       outputs = model(images)
+       _, predicted = torch.max(outputs.data, 1)
+       total += labels.size(0)
+       correct += (predicted == labels).sum()
+
+     accuracy = 100 * correct / total
+     print('Iteration: {}. Loss: {}. Accuracy: {}'.format(
+                             iter, loss.item(), accuracy))
+\end{verbatim}
+  \end{block}
+}
+\end{frame} 
+
+\begin{frame}[fragile]
+  \frametitle{Break Down Accuracy Calculation}
+\small{
+  \begin{block}{Print Output Size}
+\begin{verbatim}
+iter_test = 0
+for images, labels in test_loader:
+    iter_test += 1
+    images = images.view(-1, 28*28).requires_grad_()
+    outputs = model(images)
+    if iter_test == 1:
+        print('OUTPUTS')
+        print(outputs.size())
+        print(outputs[0, :])
+    _, predicted = torch.max(outputs.data, 1)
+\end{verbatim}
+  \end{block}
+}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Check Predictions}
+\small{
+  \begin{block}{Printing prediction output}
+\begin{verbatim}
+iter_test = 0
+for images, labels in test_loader:
+    iter_test += 1
+    images = images.view(-1, 28*28).requires_grad_()
+    outputs = model(images)
+    _, predicted = torch.max(outputs.data, 1)
+    if iter_test == 1:
+        print('PREDICTION')
+        print(predicted.size())
+        print(predicted[0])
+\end{verbatim}
+  \end{block}
+}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Check Accuracy}
+\small{
+  \begin{block}{Print accuracy}
+\begin{verbatim}
+correct, total = 0, 0
+iter_test = 0
+for images, labels in test_loader:
+    iter_test += 1
+    images = images.view(-1, 28*28).requires_grad_()
+    outputs = model(images)
+    _, predicted = torch.max(outputs.data, 1)
+
+     total += labels.size(0)
+    correct += (predicted == labels).sum()
+
+accuracy = 100 * (correct.item() / total)
+print(accuracy)
+\end{verbatim}
+  \end{block}
+}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Python's \textbf{sum()} Function}
+  \begin{block}{}
+   correct += (predicted == labels).sum()
+  \end{block}
+
+  It allows you to do a comparison between two matrices and sum the ones that
+  return True or in our case, those predictions that match actual labels
+  (correct predictions).
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Saving Model}
+  \begin{block}{Save model}
+\begin{verbatim}
+save_model = False
+if save_model is True:
+    torch.save(model.state_dict(), 
+          'logistic_reguression_model.pkl')
+\end{verbatim}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Summary}
+  \begin{itemize}
+  \item Logistic regression basics
+  \item Problems of linear regression
+  \item In-depth Logistic Regression
+  \item Built a logistic regression model 
   \end{itemize}
 \end{frame}
 \end{document}
